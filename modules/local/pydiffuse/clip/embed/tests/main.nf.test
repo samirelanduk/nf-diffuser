@@ -1,0 +1,38 @@
+nextflow_process {
+
+    name "Test CLIP_EMBED"
+    script "../main.nf"
+    process "CLIP_EMBED"
+
+    tag "modules"
+    tag "modules_local"
+    tag "pydiffuse"
+    tag "pydiffuse/clip/embed"
+
+    test("test_embed") {
+
+        setup {
+            new File("$launchDir/tokens.json").text = "[" + (0..<77).toList() + "]"
+        }
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], file("$launchDir/tokens.json")]
+                input[1] = file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/clip_embedding_model.safetensors")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.embedding.collect { meta, embedding -> [meta, file(embedding).name] }
+                ).match("embedding") },
+                { assert snapshot(process.out.versions_python).match("versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("versions_pydiffuse") },
+            )
+        }
+    }
+}

@@ -1,0 +1,51 @@
+{
+    "embedding": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_embedding.pt"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T13:04:20.230094",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "versions_python": {
+        "content": [
+            [
+                [
+                    "CLIP_EMBED",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T13:04:20.235734",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "CLIP_EMBED",
+                    "pydiffuse",
+                    "0.4.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T13:04:20.237683",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
