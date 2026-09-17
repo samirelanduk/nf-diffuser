@@ -23,9 +23,8 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(
-                    process.out.conditioning.collect { meta, conditioning -> [meta, file(conditioning).name] }
-                ).match("conditioning") },
+                { assert process.out.conditioning[0][0] == [id: "test"] },
+                { assert file(process.out.conditioning[0][1]).name == "test_conditioning.pt" },
                 { assert snapshot(process.out.versions_python).match("versions_python") },
                 { assert snapshot(process.out.versions_pydiffuse).match("versions_pydiffuse") },
             )

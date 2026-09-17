@@ -27,9 +27,8 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert snapshot(
-                    process.out.embedding.collect { meta, embedding -> [meta, file(embedding).name] }
-                ).match("embedding") },
+                { assert process.out.embedding[0][0] == [id: "test"] },
+                { assert file(process.out.embedding[0][1]).name == "test_embedding.pt" },
                 { assert snapshot(process.out.versions_python).match("versions_python") },
                 { assert snapshot(process.out.versions_pydiffuse).match("versions_pydiffuse") },
             )

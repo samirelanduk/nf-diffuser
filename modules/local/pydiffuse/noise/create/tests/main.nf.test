@@ -1,0 +1,33 @@
+nextflow_process {
+
+    name "Test NOISE_CREATE"
+    script "../main.nf"
+    process "NOISE_CREATE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "pydiffuse"
+    tag "pydiffuse/noise/create"
+
+    test("test_create") {
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], 100, 74]
+                input[1] = file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.latent[0][0] == [id: "test"] },
+                { assert file(process.out.latent[0][1]).name == "test_latent.pt" },
+                { assert snapshot(process.out.versions_python).match("versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("versions_pydiffuse") },
+            )
+        }
+    }
+}
