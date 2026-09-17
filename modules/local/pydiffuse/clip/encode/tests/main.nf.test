@@ -1,0 +1,34 @@
+nextflow_process {
+
+    name "Test CLIP_ENCODE"
+    script "../main.nf"
+    process "CLIP_ENCODE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "pydiffuse"
+    tag "pydiffuse/clip/encode"
+
+    test("test_encode") {
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/data/embedding.pt")]
+                input[1] = file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/clip_encode_model.safetensors")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(
+                    process.out.conditioning.collect { meta, conditioning -> [meta, file(conditioning).name] }
+                ).match("conditioning") },
+                { assert snapshot(process.out.versions_python).match("versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("versions_pydiffuse") },
+            )
+        }
+    }
+}

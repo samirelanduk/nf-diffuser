@@ -1,0 +1,51 @@
+{
+    "conditioning": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_conditioning.pt"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T14:44:36.516764",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "versions_python": {
+        "content": [
+            [
+                [
+                    "CLIP_ENCODE",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T14:44:36.52323",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "CLIP_ENCODE",
+                    "pydiffuse",
+                    "0.4.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T14:44:36.525228",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
