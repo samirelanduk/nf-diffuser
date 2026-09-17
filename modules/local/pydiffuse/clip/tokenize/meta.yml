@@ -1,4 +1,4 @@
-name: tokenize
+name: clip_tokenize
 description: Converts a text prompt into the CLIP token IDs used to condition a diffusion model.
 keywords:
   - pydiffuse
@@ -8,8 +8,8 @@ keywords:
 tools:
   - pydiffuse:
       description: |
-        Python library for generating media with diffusion, exposing its CLIP
-        stages as a command-line interface.
+        Python library and command-line tool for generating media with
+        diffusion.
       homepage: https://github.com/samirelanduk/pydiffuse
       documentation: https://github.com/samirelanduk/pydiffuse/blob/master/README.md
       licence: ["MIT"]

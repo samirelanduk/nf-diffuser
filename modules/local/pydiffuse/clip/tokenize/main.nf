@@ -1,4 +1,4 @@
-process TOKENIZE {
+process CLIP_TOKENIZE {
     tag "$meta.id"
     label "process_single"
 
