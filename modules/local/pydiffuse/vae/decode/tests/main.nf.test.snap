@@ -1,0 +1,34 @@
+{
+    "basic_versions_python": {
+        "content": [
+            [
+                [
+                    "VAE_DECODE",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T12:28:49.384451",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "basic_versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "VAE_DECODE",
+                    "pydiffuse",
+                    "0.4.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T12:28:49.388979",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

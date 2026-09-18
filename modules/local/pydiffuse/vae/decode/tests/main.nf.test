@@ -1,0 +1,35 @@
+nextflow_process {
+
+    name "Test VAE_DECODE"
+    script "../main.nf"
+    process "VAE_DECODE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "pydiffuse"
+    tag "pydiffuse/vae/decode"
+
+    test("test_basic_input") {
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/data/small-flower.pt")]
+                input[1] = file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.image[0][0] == [id: "test"] },
+                { assert file(process.out.image[0][1]).name == "test_image.jpg" },
+                { assert javax.imageio.ImageIO.read(file(process.out.image[0][1])).width == 100 },
+                { assert javax.imageio.ImageIO.read(file(process.out.image[0][1])).height == 74 },
+                { assert snapshot(process.out.versions_python).match("basic_versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("basic_versions_pydiffuse") },
+            )
+        }
+    }
+}
