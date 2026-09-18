@@ -1,0 +1,118 @@
+name: denoise
+description: Denoises a latent by stepping it through a noise schedule, predicting the noise at each step with a model's UNet guided by positive and negative conditioning.
+keywords:
+  - pydiffuse
+  - sample
+  - denoise
+  - unet
+  - latent
+  - diffusion
+tools:
+  - pydiffuse:
+      description: |
+        Python library and command-line tool for generating media with
+        diffusion.
+      homepage: https://github.com/samirelanduk/pydiffuse
+      documentation: https://github.com/samirelanduk/pydiffuse/blob/master/README.md
+      licence: ["MIT"]
+      args_id: ""
+  - python:
+      description: Python runtime used to execute the pydiffuse CLI.
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      licence: ["Python-2.0"]
+      identifier: biotools:python
+      args_id: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ].
+    - latent:
+        type: file
+        description: |
+          PyTorch tensor of shape (channels, height, width), noised to the
+          schedule's first level.
+        pattern: "*.pt"
+    - positive:
+        type: file
+        description: |
+          PyTorch tensor of CLIP conditioning to steer the denoising towards.
+        pattern: "*.pt"
+    - negative:
+        type: file
+        description: |
+          PyTorch tensor of CLIP conditioning to steer the denoising away from.
+        pattern: "*.pt"
+    - schedule:
+        type: file
+        description: |
+          Noise levels to step through, one per line. There must be at least
+          two, each at least 0 and below 1.
+        pattern: "*.txt"
+  - model:
+      type: file
+      description: |
+        Safetensors file with UNet tensors under model.diffusion_model.
+      pattern: "*.safetensors"
+output:
+  denoised:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ].
+      - "${meta.id}_denoised.pt":
+          type: file
+          description: |
+            PyTorch tensor of the same shape as the latent.
+          pattern: "*_denoised.pt"
+
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - python:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_pydiffuse:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - pydiffuse:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - python:
+          type: string
+          description: The tool name
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - pydiffuse:
+          type: string
+          description: The tool name
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"
