@@ -1,0 +1,56 @@
+nextflow_process {
+
+    name "Test NOISE_SCHEDULE"
+    script "../main.nf"
+    process "NOISE_SCHEDULE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "pydiffuse"
+    tag "pydiffuse/noise/schedule"
+
+    test("test_basic_input") {
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], 5]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.schedule[0][0] == [id: "test"] },
+                { assert file(process.out.schedule[0][1]).name == "test_schedule.txt" },
+                { assert path(process.out.schedule[0][1]).readLines().size() == 6 },
+                { assert path(process.out.schedule[0][1]).readLines()[1] == "0.95834503" },
+                { assert path(process.out.schedule[0][1]).readLines()[-1] == "0.0" },
+                { assert snapshot(process.out.versions_python).match("basic_versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("basic_versions_pydiffuse") },
+            )
+        }
+    }
+
+    test("test_ext_pass") {
+        config "./ext.config"
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], 5]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.schedule[0][1]).readLines().size() == 6 },
+                { assert path(process.out.schedule[0][1]).readLines()[1] == "0.90513932" },
+                { assert snapshot(process.out.versions_python).match("ext_versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("ext_versions_pydiffuse") },
+            )
+        }
+    }
+}
