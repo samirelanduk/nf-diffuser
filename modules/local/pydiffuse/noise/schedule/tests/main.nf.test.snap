@@ -1,0 +1,66 @@
+{
+    "basic_versions_python": {
+        "content": [
+            [
+                [
+                    "NOISE_SCHEDULE",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T21:43:25.835155",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "ext_versions_python": {
+        "content": [
+            [
+                [
+                    "NOISE_SCHEDULE",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T21:43:30.994708",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "basic_versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "NOISE_SCHEDULE",
+                    "pydiffuse",
+                    "0.4.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T21:43:25.840466",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "ext_versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "NOISE_SCHEDULE",
+                    "pydiffuse",
+                    "0.4.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T21:43:30.997032",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

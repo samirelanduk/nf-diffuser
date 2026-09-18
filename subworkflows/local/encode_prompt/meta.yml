@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "encode_prompt"
+description: Converts text prompts into the CLIP conditioning used to guide a diffusion model, by tokenizing, embedding and encoding them with pydiffuse.
+keywords:
+  - prompt
+  - clip
+  - tokenize
+  - embed
+  - encode
+  - conditioning
+  - pydiffuse
+components:
+  - clip/tokenize
+  - clip/embed
+  - clip/encode
+input:
+  - ch_prompt:
+      type: string
+      description: |
+        The text prompts to encode.
+        Structure: [ val(meta), val(prompt) ]
+  - tokenizer:
+      type: directory
+      description: |
+        Optional directory containing a custom CLIP tokenizer, or [] to use the
+        standard CLIP tokenizer bundled with pydiffuse. Its vocabulary must
+        match the model. Passed as a value channel so it is reused for every
+        prompt.
+        Structure: [ path(tokenizer) ]
+  - model:
+      type: file
+      description: |
+        Safetensors file with CLIP token and position embeddings, and every
+        CLIP encoder layer and the final layer norm, under cond_stage_model.
+        Passed as a value channel so it is reused for every prompt.
+        Structure: [ path(model) ]
+      pattern: "*.safetensors"
+output:
+  - conditioning:
+      type: file
+      description: |
+        PyTorch tensor of shape (chunks, 77, width), where width is the model's
+        embedding width.
+        Structure: [ val(meta), path(conditioning) ]
+      pattern: "*_conditioning.pt"
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"

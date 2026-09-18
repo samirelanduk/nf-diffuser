@@ -1,0 +1,112 @@
+name: clip_tokenize
+description: Converts a text prompt into the CLIP token IDs used to condition a diffusion model.
+keywords:
+  - pydiffuse
+  - clip
+  - tokenize
+  - diffusion
+tools:
+  - pydiffuse:
+      description: |
+        Python library and command-line tool for generating media with
+        diffusion.
+      homepage: https://github.com/samirelanduk/pydiffuse
+      documentation: https://github.com/samirelanduk/pydiffuse/blob/master/README.md
+      licence: ["MIT"]
+      args_id: ""
+  - python:
+      description: Python runtime used to execute the pydiffuse CLI.
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      licence: ["Python-2.0"]
+      identifier: biotools:python
+      args_id: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing prompt information
+          e.g. [ id:'test' ].
+    - prompt:
+        type: string
+        description: |
+          The text prompt to tokenize. Prompts longer than 75 tokens are split
+          over as many 77 token chunks as they need.
+  - tokenizer:
+      type: directory
+      description: |
+        Optional directory containing a custom CLIP tokenizer. If not given, the
+        standard CLIP tokenizer bundled with pydiffuse is used, which must match
+        the vocabulary of the model the tokens are later embedded with.
+output:
+  tokens:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing prompt information.
+      - "${meta.id}_tokens.json":
+          type: file
+          description: |
+            JSON list of lists of token IDs, where each inner list is a chunk of
+            exactly 77 tokens.
+          pattern: "*_tokens.json"
+
+  mappings:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing prompt information.
+      - "${meta.id}_mappings.json":
+          type: file
+          description: |
+            JSON of the same shape as the tokens, pairing each token ID with the
+            substring of the prompt it came from.
+          pattern: "*_mappings.json"
+
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - python:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_pydiffuse:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - pydiffuse:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - python:
+          type: string
+          description: The tool name
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - pydiffuse:
+          type: string
+          description: The tool name
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"

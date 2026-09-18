@@ -4,4 +4,4 @@ dependencies:
   - conda-forge::pip=26.2.1
   - conda-forge::python=3.13.15
   - pip:
-      - pydiffuse==0.2.0
+      - pydiffuse==0.4.0

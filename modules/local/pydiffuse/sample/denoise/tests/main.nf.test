@@ -1,0 +1,116 @@
+nextflow_process {
+
+    name "Test DENOISE"
+    script "../main.nf"
+    process "DENOISE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "pydiffuse"
+    tag "pydiffuse/sample/denoise"
+
+    def data = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli"
+
+    def firstValue = { path ->
+        def zip = new java.util.zip.ZipFile(path)
+        def entry = zip.entries().find { it.name.endsWith("/data/0") }
+        def bytes = zip.getInputStream(entry).readNBytes(4)
+        zip.close()
+        java.nio.ByteBuffer.wrap(bytes).order(java.nio.ByteOrder.LITTLE_ENDIAN).getFloat()
+    }
+
+    test("test_basic_input") {
+
+        setup {
+            new File("$launchDir/schedule.txt").text = "0.9953399\n0.61880525\n0.00085\n0.0\n"
+        }
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id: "test"],
+                    file("$data/data/small-flower.pt"),
+                    file("$data/data/positive-conditioning.pt"),
+                    file("$data/data/negative-conditioning.pt"),
+                    file("$launchDir/schedule.txt"),
+                ]
+                input[1] = file("$data/models/unet_model.safetensors")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.denoised[0][0] == [id: "test"] },
+                { assert file(process.out.denoised[0][1]).name == "test_denoised.pt" },
+                { assert Math.abs(firstValue(process.out.denoised[0][1]) - 2.982) < 0.01 },
+                { assert snapshot(process.out.versions_python).match("basic_versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("basic_versions_pydiffuse") },
+            )
+        }
+    }
+
+    test("test_matching_conditioning_names") {
+
+        setup {
+            new File("$launchDir/schedule.txt").text = "0.9953399\n0.61880525\n0.00085\n0.0\n"
+        }
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id: "test"],
+                    file("$data/data/small-flower.pt"),
+                    file("$data/data/positive-conditioning.pt"),
+                    file("$data/data/positive-conditioning.pt"),
+                    file("$launchDir/schedule.txt"),
+                ]
+                input[1] = file("$data/models/unet_model.safetensors")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert file(process.out.denoised[0][1]).name == "test_denoised.pt" },
+                { assert snapshot(process.out.versions_python).match("matching_versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("matching_versions_pydiffuse") },
+            )
+        }
+    }
+
+    test("test_ext_pass") {
+        config "./ext.config"
+        setup {
+            new File("$launchDir/schedule.txt").text = "0.9953399\n0.61880525\n0.00085\n0.0\n"
+        }
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id: "test"],
+                    file("$data/data/small-flower.pt"),
+                    file("$data/data/positive-conditioning.pt"),
+                    file("$data/data/negative-conditioning.pt"),
+                    file("$launchDir/schedule.txt"),
+                ]
+                input[1] = file("$data/models/unet_model.safetensors")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert Math.abs(firstValue(process.out.denoised[0][1]) - 2.567) < 0.01 },
+                { assert snapshot(process.out.versions_python).match("ext_versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("ext_versions_pydiffuse") },
+            )
+        }
+    }
+}

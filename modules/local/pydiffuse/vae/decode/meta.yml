@@ -1,0 +1,104 @@
+name: vae_decode
+description: Decodes a latent into an image using a model's VAE decoder.
+keywords:
+  - pydiffuse
+  - vae
+  - decode
+  - latent
+  - image
+  - diffusion
+tools:
+  - pydiffuse:
+      description: |
+        Python library and command-line tool for generating media with
+        diffusion.
+      homepage: https://github.com/samirelanduk/pydiffuse
+      documentation: https://github.com/samirelanduk/pydiffuse/blob/master/README.md
+      licence: ["MIT"]
+      args_id: ""
+  - python:
+      description: Python runtime used to execute the pydiffuse CLI.
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      licence: ["Python-2.0"]
+      identifier: biotools:python
+      args_id: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ].
+    - latent:
+        type: file
+        description: |
+          PyTorch tensor of shape (channels, height, width) containing the
+          latent to decode.
+        pattern: "*.pt"
+  - model:
+      type: file
+      description: |
+        Safetensors file with VAE decoder tensors. Its latent channels must
+        match the latent.
+      pattern: "*.safetensors"
+output:
+  image:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ].
+      - "${meta.id}_image.jpg":
+          type: file
+          description: |
+            RGB image whose dimensions are the latent's multiplied by the
+            model's downscale ratio.
+          pattern: "*_image.jpg"
+
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - python:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_pydiffuse:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - pydiffuse:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - python:
+          type: string
+          description: The tool name
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - pydiffuse:
+          type: string
+          description: The tool name
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"

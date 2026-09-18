@@ -1,0 +1,2 @@
+noise/schedule:
+  - modules/local/pydiffuse/noise/schedule/**

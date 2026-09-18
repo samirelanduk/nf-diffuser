@@ -1,15 +1,17 @@
-name: tokenize
-description: Converts a text prompt into the CLIP token IDs used to condition a diffusion model.
+name: denoise
+description: Denoises a latent by stepping it through a noise schedule, predicting the noise at each step with a model's UNet guided by positive and negative conditioning.
 keywords:
   - pydiffuse
-  - clip
-  - tokenize
+  - sample
+  - denoise
+  - unet
+  - latent
   - diffusion
 tools:
   - pydiffuse:
       description: |
-        Python library for generating media with diffusion, exposing its CLIP
-        stages as a command-line interface.
+        Python library and command-line tool for generating media with
+        diffusion.
       homepage: https://github.com/samirelanduk/pydiffuse
       documentation: https://github.com/samirelanduk/pydiffuse/blob/master/README.md
       licence: ["MIT"]
@@ -25,43 +27,47 @@ input:
   - - meta:
         type: map
         description: |
-          Groovy Map containing prompt information
+          Groovy Map containing sample information
           e.g. [ id:'test' ].
-    - prompt:
-        type: string
+    - latent:
+        type: file
         description: |
-          The text prompt to tokenize. Prompts longer than 75 tokens are split
-          over as many 77 token chunks as they need.
-  - tokenizer:
-      type: directory
+          PyTorch tensor of shape (channels, height, width), noised to the
+          schedule's first level.
+        pattern: "*.pt"
+    - positive:
+        type: file
+        description: |
+          PyTorch tensor of CLIP conditioning to steer the denoising towards.
+        pattern: "*.pt"
+    - negative:
+        type: file
+        description: |
+          PyTorch tensor of CLIP conditioning to steer the denoising away from.
+        pattern: "*.pt"
+    - schedule:
+        type: file
+        description: |
+          Noise levels to step through, one per line. There must be at least
+          two, each at least 0 and below 1.
+        pattern: "*.txt"
+  - model:
+      type: file
       description: |
-        Optional directory containing a custom CLIP tokenizer. If not given, the
-        standard CLIP tokenizer bundled with pydiffuse is used, which must match
-        the vocabulary of the model the tokens are later embedded with.
+        Safetensors file with UNet tensors under model.diffusion_model.
+      pattern: "*.safetensors"
 output:
-  tokens:
+  denoised:
     - - meta:
           type: map
           description: |
-            Groovy Map containing prompt information.
-      - "${meta.id}_tokens.json":
+            Groovy Map containing sample information
+            e.g. [ id:'test' ].
+      - "${meta.id}_denoised.pt":
           type: file
           description: |
-            JSON list of lists of token IDs, where each inner list is a chunk of
-            exactly 77 tokens.
-          pattern: "*_tokens.json"
-
-  mappings:
-    - - meta:
-          type: map
-          description: |
-            Groovy Map containing prompt information.
-      - "${meta.id}_mappings.json":
-          type: file
-          description: |
-            JSON of the same shape as the tokens, pairing each token ID with the
-            substring of the prompt it came from.
-          pattern: "*_mappings.json"
+            PyTorch tensor of the same shape as the latent.
+          pattern: "*_denoised.pt"
 
   versions_python:
     - - "${task.process}":

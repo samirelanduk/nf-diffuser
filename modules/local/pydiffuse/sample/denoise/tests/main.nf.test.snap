@@ -1,0 +1,98 @@
+{
+    "basic_versions_python": {
+        "content": [
+            [
+                [
+                    "DENOISE",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T17:19:52.581733",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "matching_versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "DENOISE",
+                    "pydiffuse",
+                    "0.4.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T17:19:59.396648",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "ext_versions_python": {
+        "content": [
+            [
+                [
+                    "DENOISE",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T17:20:07.014785",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "matching_versions_python": {
+        "content": [
+            [
+                [
+                    "DENOISE",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T17:19:59.394348",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "basic_versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "DENOISE",
+                    "pydiffuse",
+                    "0.4.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T17:19:52.587218",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "ext_versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "DENOISE",
+                    "pydiffuse",
+                    "0.4.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-18T17:20:07.016684",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

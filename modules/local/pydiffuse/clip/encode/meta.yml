@@ -1,0 +1,103 @@
+name: clip_encode
+description: Runs CLIP embedding vectors through a model's CLIP transformer layers to produce the conditioning for a diffusion model.
+keywords:
+  - pydiffuse
+  - clip
+  - encode
+  - conditioning
+  - diffusion
+tools:
+  - pydiffuse:
+      description: |
+        Python library and command-line tool for generating media with
+        diffusion.
+      homepage: https://github.com/samirelanduk/pydiffuse
+      documentation: https://github.com/samirelanduk/pydiffuse/blob/master/README.md
+      licence: ["MIT"]
+      args_id: ""
+  - python:
+      description: Python runtime used to execute the pydiffuse CLI.
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      licence: ["Python-2.0"]
+      identifier: biotools:python
+      args_id: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing prompt information
+          e.g. [ id:'test' ].
+    - embedding:
+        type: file
+        description: |
+          PyTorch tensor of shape (chunks, 77, width) containing CLIP embedding
+          vectors.
+        pattern: "*.pt"
+  - model:
+      type: file
+      description: |
+        Safetensors file with the attention, MLP and layer norm tensors of
+        every CLIP encoder layer, and the final layer norm, under
+        cond_stage_model. Its width must match the embedding.
+      pattern: "*.safetensors"
+output:
+  conditioning:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing prompt information
+            e.g. [ id:'test' ].
+      - "${meta.id}_conditioning.pt":
+          type: file
+          description: |
+            PyTorch tensor of the same shape as the embedding.
+          pattern: "*_conditioning.pt"
+
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - python:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_pydiffuse:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - pydiffuse:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - python:
+          type: string
+          description: The tool name
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - pydiffuse:
+          type: string
+          description: The tool name
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"

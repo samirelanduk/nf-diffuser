@@ -1,0 +1,34 @@
+{
+    "versions_python": {
+        "content": [
+            [
+                [
+                    "CLIP_EMBED",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T19:45:12.751809",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "CLIP_EMBED",
+                    "pydiffuse",
+                    "0.4.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-17T19:45:12.757505",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

@@ -1,0 +1,2 @@
+clip/embed:
+  - modules/local/pydiffuse/clip/embed/**

@@ -3,7 +3,7 @@
         "content": [
             [
                 [
-                    "TOKENIZE",
+                    "CLIP_TOKENIZE",
                     "python",
                     "3.13.15"
                 ]
@@ -19,7 +19,7 @@
         "content": [
             [
                 [
-                    "TOKENIZE",
+                    "CLIP_TOKENIZE",
                     "python",
                     "3.13.15"
                 ]
@@ -86,9 +86,9 @@
         "content": [
             [
                 [
-                    "TOKENIZE",
+                    "CLIP_TOKENIZE",
                     "pydiffuse",
-                    "0.2.0"
+                    "0.4.0"
                 ]
             ]
         ],
@@ -119,9 +119,9 @@
         "content": [
             [
                 [
-                    "TOKENIZE",
+                    "CLIP_TOKENIZE",
                     "pydiffuse",
-                    "0.2.0"
+                    "0.4.0"
                 ]
             ]
         ],
