@@ -3,6 +3,7 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+include { NOISE_CREATE           } from '../modules/local/pydiffuse/noise/create'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -19,6 +20,7 @@ workflow DIFFUSER {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+    model          // string: path to model weights file
     multiqc_config
     multiqc_logo
     multiqc_methods_description

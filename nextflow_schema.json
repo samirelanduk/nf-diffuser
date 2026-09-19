@@ -43,6 +43,23 @@
                 }
             }
         },
+        "model_options": {
+            "title": "Model options",
+            "type": "object",
+            "fa_icon": "fas fa-brain",
+            "description": "Model weights required for the workflow.",
+            "required": ["model"],
+            "properties": {
+                "model": {
+                    "type": "string",
+                    "format": "file-path",
+                    "exists": true,
+                    "pattern": "^\\S+\\.safetensors$",
+                    "description": "Path to the diffusion model weights file.",
+                    "fa_icon": "fas fa-file"
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -197,6 +214,9 @@
     "allOf": [
         {
             "$ref": "#/$defs/input_output_options"
+        },
+        {
+            "$ref": "#/$defs/model_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"
