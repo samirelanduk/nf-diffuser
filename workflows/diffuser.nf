@@ -51,6 +51,16 @@ workflow DIFFUSER {
             "${process}:\n${tool_versions.join('\n')}"
         }
 
+
+    def ch_noise_input = ch_samplesheet
+        .map { row -> [ row[0], row[0].width, row[0].height ] }
+
+    NOISE_CREATE(
+        ch_noise_input,
+        file(model, checkIfExists: true)
+    )
+
+
     def ch_collated_versions = softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
         .mix(topic_versions_string)
         .collectFile(
