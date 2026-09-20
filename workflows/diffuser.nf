@@ -4,6 +4,7 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 include { NOISE_CREATE           } from '../modules/local/pydiffuse/noise/create'
+include { NOISE_SCHEDULE         } from '../modules/local/pydiffuse/noise/schedule'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -52,14 +53,21 @@ workflow DIFFUSER {
         }
 
 
-    def ch_noise_input = ch_samplesheet
+    def ch_noise_create_input = ch_samplesheet
         .map { row -> [ row[0], row[0].width, row[0].height ] }
 
     NOISE_CREATE(
-        ch_noise_input,
+        ch_noise_create_input,
         file(model, checkIfExists: true)
     )
 
+
+    def ch_noise_schedule_input = ch_samplesheet
+        .map { row -> [ row[0], row[0].steps ] }
+
+    NOISE_SCHEDULE(
+        ch_noise_schedule_input
+    )
 
     def ch_collated_versions = softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
         .mix(topic_versions_string)

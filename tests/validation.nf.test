@@ -361,5 +361,89 @@ nextflow_pipeline {
         }
     }
 
+    test("Fails when steps is not a number") {
+
+        setup {
+            def sheet = new File("$launchDir/bad_steps.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,positive,negative,width,height,steps,schedule
+                TREE,A photo of a tree,blurry,800,600,not_a_number,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/bad_steps.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer') } }
+            )
+        }
+    }
+
+    test("Fails when steps is not a whole number") {
+
+        setup {
+            def sheet = new File("$launchDir/fractional_steps.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,positive,negative,width,height,steps,schedule
+                TREE,A photo of a tree,blurry,800,600,20.5,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/fractional_steps.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer') } }
+            )
+        }
+    }
+
+    test("Fails when the schedule is not a recognised algorithm") {
+
+        setup {
+            def sheet = new File("$launchDir/bad_schedule.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,positive,negative,width,height,steps,schedule
+                TREE,A photo of a tree,blurry,800,600,20,linear
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/bad_schedule.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'schedule'") && it.contains('Schedule must be a string and must be one of the following: karras, exponential') } }
+            )
+        }
+    }
+
 
 }
