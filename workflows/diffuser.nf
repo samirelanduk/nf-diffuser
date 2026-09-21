@@ -5,6 +5,8 @@
 */
 include { NOISE_CREATE           } from '../modules/local/pydiffuse/noise/create'
 include { NOISE_SCHEDULE         } from '../modules/local/pydiffuse/noise/schedule'
+include { ENCODE_PROMPT as ENCODE_POSITIVE } from '../subworkflows/local/encode_prompt'
+include { ENCODE_PROMPT as ENCODE_NEGATIVE } from '../subworkflows/local/encode_prompt'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -53,20 +55,36 @@ workflow DIFFUSER {
         }
 
 
+    // Get model
+    def ch_model = channel.value(file(model, checkIfExists: true))
+
+    // Create empty latent image
     def ch_noise_create_input = ch_samplesheet
         .map { row -> [ row[0], row[0].width, row[0].height ] }
-
     NOISE_CREATE(
         ch_noise_create_input,
-        file(model, checkIfExists: true)
+        ch_model
     )
 
-
+    // Create noise schedule
     def ch_noise_schedule_input = ch_samplesheet
         .map { row -> [ row[0], row[0].steps ] }
-
     NOISE_SCHEDULE(
         ch_noise_schedule_input
+    )
+
+    // Encode positive prompt
+    ENCODE_POSITIVE(
+        ch_samplesheet.map { row -> [ row[0], row[0].positive ] },
+        [],
+        ch_model
+    )
+
+    // Encode negative prompt
+    ENCODE_NEGATIVE(
+        ch_samplesheet.map { row -> [ row[0], row[0].negative ] },
+        [],
+        ch_model
     )
 
     def ch_collated_versions = softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
