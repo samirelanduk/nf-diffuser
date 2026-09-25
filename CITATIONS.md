@@ -18,6 +18,24 @@
 
 > Ireland SM. pydiffuse: a Python library for generating media with diffusion. https://github.com/samirelanduk/pydiffuse
 
+## Methods
+
+- [Latent Diffusion Models](https://doi.org/10.1109/CVPR52688.2022.01042)
+
+> Rombach R, Blattmann A, Lorenz D, Esser P, Ommer B. High-Resolution Image Synthesis with Latent Diffusion Models. 2022 IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR). 2022 Jun:10674-10685. doi: 10.1109/CVPR52688.2022.01042.
+
+- [CLIP](https://proceedings.mlr.press/v139/radford21a.html)
+
+> Radford A, Kim JW, Hallacy C, Ramesh A, Goh G, Agarwal S, Sastry G, Askell A, Mishkin P, Clark J, Krueger G, Sutskever I. Learning Transferable Visual Models From Natural Language Supervision. Proceedings of the 38th International Conference on Machine Learning, PMLR. 2021 Jul;139:8748-8763.
+
+- [Classifier-free guidance](https://doi.org/10.48550/arXiv.2207.12598)
+
+> Ho J, Salimans T. Classifier-Free Diffusion Guidance. arXiv. 2022 Jul. doi: 10.48550/arXiv.2207.12598.
+
+- [Karras noise schedule and samplers](https://proceedings.neurips.cc/paper_files/paper/2022/hash/a98846e9d9cc01cfb87eb694d946ce6b-Abstract-Conference.html)
+
+> Karras T, Aittala M, Aila T, Laine S. Elucidating the Design Space of Diffusion-Based Generative Models. Advances in Neural Information Processing Systems. 2022 Dec;35:26565-26577.
+
 ## Software packaging/containerisation tools
 
 - [Anaconda](https://anaconda.com)

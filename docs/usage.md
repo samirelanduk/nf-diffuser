@@ -4,40 +4,68 @@
 
 ## Introduction
 
-samirelanduk/nf-diffuser is a generative AI pipeline that creates media using diffusion techniques. Each row of the input samplesheet describes one image you would like to generate: the prompt to steer generation towards, the prompt to steer it away from, and optionally the dimensions of the output.
+samirelanduk/nf-diffuser generates images from text prompts using latent diffusion. Each row of the input samplesheet describes one image: the prompt to steer generation towards, optionally a prompt to steer it away from, and the settings used to generate it. A Stable Diffusion 1.5 model checkpoint must also be provided.
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the images you would like to create before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with up to 5 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the images you would like to generate before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with up to 9 columns, and a header row as shown in the examples below.
 
 ```bash
 --input '[path to samplesheet file]'
 ```
 
+### Minimal samplesheet
+
+Only the `sample` and `prompt` columns are required. Every other setting falls back to its default:
+
 ```csv title="samplesheet.csv"
-sample,positive,negative,width,height
-TREE,"A photo of a tree","animals, people, text",800,600
-SKY,"A beautiful panorama of the sky","low-quality, blurry, dark",,
+sample,prompt
+TREE,"A photo of a tree"
+SKY,"A beautiful panorama of the sky"
 ```
 
-| Column     | Required | Description                                                                                                     |
-| ---------- | -------- | --------------------------------------------------------------------------------------------------------------- |
-| `sample`   | Yes      | Custom name identifying the image to be generated. Must not contain spaces - the pipeline will exit if it does. |
-| `positive` | Yes      | The prompt describing what the generated image should contain.                                                  |
-| `negative` | Yes      | The prompt describing what the generated image should avoid.                                                    |
-| `width`    | No       | Width of the generated image in pixels. Must be a whole number.                                                 |
-| `height`   | No       | Height of the generated image in pixels. Must be a whole number.                                                |
+### Full samplesheet
 
-Prompts frequently contain commas, so wrap them in double quotes as in the example above. `width` and `height` are the only optional columns: they can be left empty for individual rows or left out of the samplesheet altogether.
+All columns can be set per row. Optional columns can be left empty for individual rows, or left out of the samplesheet altogether:
+
+```csv title="samplesheet.csv"
+sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+TREE,"A photo of a tree","animals, people, text",768,512,30,5,heun,exponential
+SKY,"A beautiful panorama of the sky",,,,,,,
+```
+
+| Column            | Required | Default  | Description                                                                                                                                |
+| ----------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sample`          | Yes      |          | Custom name identifying the image to be generated. Used to name output files. Must not contain spaces - the pipeline will exit if it does. |
+| `prompt`          | Yes      |          | The prompt describing what the generated image should contain.                                                                             |
+| `negative_prompt` | No       | (empty)  | The prompt describing what the generated image should avoid.                                                                               |
+| `width`           | No       | `512`    | Width of the generated image in pixels. Must be a whole number.                                                                            |
+| `height`          | No       | `512`    | Height of the generated image in pixels. Must be a whole number.                                                                           |
+| `steps`           | No       | `20`     | Number of denoising steps. More steps are slower but can give more detailed images. Must be a whole number.                                |
+| `cfg`             | No       | `7.5`    | Classifier-free guidance scale: how strongly generation is steered towards the prompt and away from the negative prompt. Must be ≥ 1.      |
+| `sampler`         | No       | `euler`  | Sampling algorithm used to denoise the image: `euler` or `heun`. `heun` is more accurate but takes roughly twice as long per step.         |
+| `schedule`        | No       | `karras` | Noise schedule: `karras` or `exponential`.                                                                                                 |
+
+Prompts frequently contain commas, so wrap them in double quotes as in the examples above.
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+
+## Model
+
+The pipeline needs a Stable Diffusion 1.5 checkpoint in [safetensors](https://huggingface.co/docs/safetensors) format, containing the CLIP text encoder, UNet and VAE weights in a single file. Specify its location with:
+
+```bash
+--model '[path to model.safetensors]'
+```
+
+The same model is used for every sample in the run.
 
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run samirelanduk/nf-diffuser --input ./samplesheet.csv --outdir ./results  -profile docker
+nextflow run samirelanduk/nf-diffuser --input ./samplesheet.csv --model ./model.safetensors --outdir ./results -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -68,6 +96,7 @@ with:
 
 ```yaml title="params.yaml"
 input: './samplesheet.csv'
+model: './model.safetensors'
 outdir: './results/'
 <...>
 ```

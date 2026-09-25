@@ -21,7 +21,7 @@
                 [
                     "CLIP_ENCODE",
                     "pydiffuse",
-                    "0.4.0"
+                    "0.4.1"
                 ]
             ]
         ],

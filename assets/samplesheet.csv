@@ -1,3 +1,3 @@
-sample,positive,negative,width,height
-TREE,"A photo of a tree","animals, people, text",800,600
-SKY,"A beautiful panorama of the sky","low-quality, blurry, dark",,
+sample,prompt,negative_prompt,width,height,steps,schedule
+TREE,"A photo of a tree","animals, people, text",800,600,15,exponential
+SKY,"A beautiful panorama of the sky",,,,,

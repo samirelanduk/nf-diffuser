@@ -11,6 +11,7 @@ nextflow_pipeline {
             params {
                 outdir = null
                 input  = "${projectDir}/tests/data/samplesheet.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -29,6 +30,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = null
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -41,12 +43,70 @@ nextflow_pipeline {
         }
     }
 
+    test("Fails when --model is missing") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "${projectDir}/tests/data/samplesheet.csv"
+                model  = null
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains('Missing required parameter(s): model') } }
+            )
+        }
+    }
+
+    test("Fails when --model does not have a .safetensors extension") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "${projectDir}/tests/data/samplesheet.csv"
+                model  = "${projectDir}/tests/data/samplesheet.csv"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains('does not match regular expression [^\\S+\\.safetensors$]') } }
+            )
+        }
+    }
+
+    test("Fails when --model path does not exist") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "${projectDir}/tests/data/samplesheet.csv"
+                model  = "${projectDir}/tests/data/does_not_exist.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("does_not_exist.safetensors' does not exist") } }
+            )
+        }
+    }
+
     test("Fails when --input does not have a .csv extension") {
 
         when {
             params {
                 outdir = "$outputDir"
                 input  = "${projectDir}/assets/schema_input.json"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -65,6 +125,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "${projectDir}/tests/data/does_not_exist.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -83,7 +144,7 @@ nextflow_pipeline {
             def sheet = new File("$launchDir/missing_sample.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height
+                sample,prompt,negative_prompt,width,height
                 ,A photo of a tree,blurry,800,600
                 """.stripIndent()
         }
@@ -92,6 +153,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/missing_sample.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -110,7 +172,7 @@ nextflow_pipeline {
             def sheet = new File("$launchDir/spaces_sample.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height
+                sample,prompt,negative_prompt,width,height
                 bad sample,A photo of a tree,blurry,800,600
                 """.stripIndent()
         }
@@ -119,6 +181,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/spaces_sample.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -130,13 +193,42 @@ nextflow_pipeline {
         }
     }
 
-    test("Fails when a samplesheet row is missing the positive prompt") {
+    test("Fails when sample names are not unique") {
 
         setup {
-            def sheet = new File("$launchDir/missing_positive.csv")
+            def sheet = new File("$launchDir/duplicate_sample.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height
+                sample,prompt,negative_prompt,width,height
+                TREE,A photo of a tree,blurry,800,600
+                TREE,A painting of a tree,blurry,800,600
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/duplicate_sample.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains('Detected duplicate entries') && it.contains('TREE') } }
+            )
+        }
+    }
+
+    test("Fails when a samplesheet row is missing the prompt") {
+
+        setup {
+            def sheet = new File("$launchDir/missing_prompt.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height
                 TREE,,blurry,800,600
                 """.stripIndent()
         }
@@ -144,7 +236,8 @@ nextflow_pipeline {
         when {
             params {
                 outdir = "$outputDir"
-                input  = "$launchDir/missing_positive.csv"
+                input  = "$launchDir/missing_prompt.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -152,34 +245,7 @@ nextflow_pipeline {
             assertAll(
                 { assert workflow.failed },
                 { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
-                { assert workflow.stderr.any { it.contains('Missing required field(s): positive') } }
-            )
-        }
-    }
-
-    test("Fails when a samplesheet row is missing the negative prompt") {
-
-        setup {
-            def sheet = new File("$launchDir/missing_negative.csv")
-            sheet.parentFile.mkdirs()
-            sheet.text = """\
-                sample,positive,negative,width,height
-                TREE,A photo of a tree,,800,600
-                """.stripIndent()
-        }
-
-        when {
-            params {
-                outdir = "$outputDir"
-                input  = "$launchDir/missing_negative.csv"
-            }
-        }
-
-        then {
-            assertAll(
-                { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
-                { assert workflow.stderr.any { it.contains('Missing required field(s): negative') } }
+                { assert workflow.stderr.any { it.contains('Missing required field(s): prompt') } }
             )
         }
     }
@@ -190,7 +256,7 @@ nextflow_pipeline {
             def sheet = new File("$launchDir/bad_width.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height
+                sample,prompt,negative_prompt,width,height
                 TREE,A photo of a tree,blurry,not_a_number,600
                 """.stripIndent()
         }
@@ -199,6 +265,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/bad_width.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -217,7 +284,7 @@ nextflow_pipeline {
             def sheet = new File("$launchDir/bad_height.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height
+                sample,prompt,negative_prompt,width,height
                 TREE,A photo of a tree,blurry,800,not_a_number
                 """.stripIndent()
         }
@@ -226,6 +293,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/bad_height.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -244,7 +312,7 @@ nextflow_pipeline {
             def sheet = new File("$launchDir/fractional_width.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height
+                sample,prompt,negative_prompt,width,height
                 TREE,A photo of a tree,blurry,800.5,600
                 """.stripIndent()
         }
@@ -253,6 +321,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/fractional_width.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -271,7 +340,7 @@ nextflow_pipeline {
             def sheet = new File("$launchDir/fractional_height.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height
+                sample,prompt,negative_prompt,width,height
                 TREE,A photo of a tree,blurry,800,600.5
                 """.stripIndent()
         }
@@ -280,6 +349,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/fractional_height.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -288,6 +358,202 @@ nextflow_pipeline {
                 { assert workflow.failed },
                 { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'height'") && it.contains('Height must be an integer') } }
+            )
+        }
+    }
+
+    test("Fails when steps is not a number") {
+
+        setup {
+            def sheet = new File("$launchDir/bad_steps.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,not_a_number,7.5,euler,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/bad_steps.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer') } }
+            )
+        }
+    }
+
+    test("Fails when steps is not a whole number") {
+
+        setup {
+            def sheet = new File("$launchDir/fractional_steps.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,20.5,7.5,euler,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/fractional_steps.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer') } }
+            )
+        }
+    }
+
+    test("Fails when steps is less than 1") {
+
+        setup {
+            def sheet = new File("$launchDir/low_steps.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,0,7.5,euler,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/low_steps.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer greater than or equal to 1') } }
+            )
+        }
+    }
+
+    test("Fails when CFG is not a number") {
+
+        setup {
+            def sheet = new File("$launchDir/bad_cfg.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,20,high,euler,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/bad_cfg.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'cfg'") && it.contains('CFG must be a number greater than or equal to 1') } }
+            )
+        }
+    }
+
+    test("Fails when CFG is less than 1") {
+
+        setup {
+            def sheet = new File("$launchDir/low_cfg.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,20,0.5,euler,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/low_cfg.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'cfg'") && it.contains('CFG must be a number greater than or equal to 1') } }
+            )
+        }
+    }
+
+    test("Fails when the sampler is not a recognised algorithm") {
+
+        setup {
+            def sheet = new File("$launchDir/bad_sampler.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,20,7.5,ancestral,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/bad_sampler.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'sampler'") && it.contains('Sampler must be a string and must be one of the following: euler, heun') } }
+            )
+        }
+    }
+
+    test("Fails when the schedule is not a recognised algorithm") {
+
+        setup {
+            def sheet = new File("$launchDir/bad_schedule.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,20,7.5,euler,linear
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/bad_schedule.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'schedule'") && it.contains('Schedule must be a string and must be one of the following: karras, exponential') } }
             )
         }
     }

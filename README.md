@@ -14,61 +14,54 @@
 
 ## Introduction
 
-**samirelanduk/nf-diffuser** is a generative AI pipeline that creates media using diffusion techniques.
+**samirelanduk/nf-diffuser** is a generative AI pipeline that creates images from text prompts using latent diffusion. It takes a samplesheet of text prompts, with optional negative prompts, plus a Stable Diffusion 1.5 `.safetensors` checkpoint, and produces one JPEG per prompt along with the intermediate latents and conditioning tensors.
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
-
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/community/brand/workflow-schematics#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+1. Create a random starting latent at the requested size ([`pydiffuse noise create`](https://github.com/samirelanduk/pydiffuse))
+2. Build the noise schedule ([`pydiffuse noise schedule`](https://github.com/samirelanduk/pydiffuse))
+3. Encode the prompt and negative prompt with CLIP: tokenize, embed and encode ([`pydiffuse clip`](https://github.com/samirelanduk/pydiffuse))
+4. Denoise the latent with the UNet using classifier-free guidance ([`pydiffuse sample denoise`](https://github.com/samirelanduk/pydiffuse))
+5. Decode the denoised latent into an image with the VAE ([`pydiffuse vae decode`](https://github.com/samirelanduk/pydiffuse))
+6. Report software versions ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/get_started/environment_setup/overview) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/get_started/run-your-first-pipeline) with `-profile test` before running the workflow on actual data.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
-First, prepare a samplesheet with your input data that looks as follows:
+First, prepare a samplesheet with your prompts that looks as follows:
 
 `samplesheet.csv`:
 
 ```csv
-sample,positive,negative,width,height
-TREE,"A photo of a tree","animals, people, text",800,600
-SKY,"A beautiful panorama of the sky","low-quality, blurry, dark",,
+sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+TREE,"A photo of a tree","animals, people, text",768,512,30,5,heun,exponential
+SKY,"A beautiful panorama of the sky",,,,,,,
 ```
 
-Each row represents a prompt that describes a desired image.
-
--->
+Each row represents one image to generate. Only `sample` and `prompt` are required; the remaining columns can be left empty or omitted to use their defaults.
 
 Now, you can run the pipeline using:
-
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
 
 ```bash
 nextflow run samirelanduk/nf-diffuser \
    -profile <docker/singularity/conda> \
    --input samplesheet.csv \
+   --model <MODEL>.safetensors \
    --outdir <OUTDIR>
 ```
 
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/running/run-pipelines#using-parameter-files).
 
+For more details and further functionality, please refer to the [usage documentation](docs/usage.md).
+
+## Pipeline output
+
+For more details about the output files and reports, please refer to the [output documentation](docs/output.md).
+
 ## Credits
 
 samirelanduk/nf-diffuser was originally written by Sam M. Ireland.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
 ## Contributions and Support
 
@@ -78,8 +71,6 @@ If you would like to contribute to this pipeline, please see the [contributing g
 
 <!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
 <!-- If you use samirelanduk/nf-diffuser for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
 
 An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
 

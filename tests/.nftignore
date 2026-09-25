@@ -1,4 +1,8 @@
 .DS_Store
+**/*_latent.pt
+**/*_conditioning.pt
+**/*_denoised.pt
+**/*_image.jpg
 multiqc/multiqc_data/multiqc.parquet
 multiqc/multiqc_data/multiqc.log
 multiqc/multiqc_data/multiqc_data.json

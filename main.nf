@@ -37,6 +37,7 @@ workflow NF_DIFFUSER {
     //
     DIFFUSER (
         samplesheet,
+        params.model,
         params.multiqc_config,
         params.multiqc_logo,
         params.multiqc_methods_description,

@@ -3,6 +3,12 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+include { NOISE_CREATE           } from '../modules/local/pydiffuse/noise/create'
+include { NOISE_SCHEDULE         } from '../modules/local/pydiffuse/noise/schedule'
+include { ENCODE_PROMPT                   } from '../subworkflows/local/encode_prompt'
+include { ENCODE_PROMPT as ENCODE_NEGATIVE_PROMPT } from '../subworkflows/local/encode_prompt'
+include { DENOISE                } from '../modules/local/pydiffuse/sample/denoise'
+include { VAE_DECODE             } from '../modules/local/pydiffuse/vae/decode'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -19,6 +25,7 @@ workflow DIFFUSER {
 
     take:
     ch_samplesheet // channel: samplesheet read in from --input
+    model          // string: path to model weights file
     multiqc_config
     multiqc_logo
     multiqc_methods_description
@@ -48,6 +55,55 @@ workflow DIFFUSER {
             tool_versions.unique().sort()
             "${process}:\n${tool_versions.join('\n')}"
         }
+
+
+    // Get model
+    def ch_model = channel.value(file(model, checkIfExists: true))
+
+    // Create empty latent image
+    def ch_noise_create_input = ch_samplesheet
+        .map { row -> [ row[0], row[0].width, row[0].height ] }
+    NOISE_CREATE(
+        ch_noise_create_input,
+        ch_model
+    )
+
+    // Create noise schedule
+    def ch_noise_schedule_input = ch_samplesheet
+        .map { row -> [ row[0], row[0].steps ] }
+    NOISE_SCHEDULE(
+        ch_noise_schedule_input
+    )
+
+    // Encode prompt
+    ENCODE_PROMPT(
+        ch_samplesheet.map { row -> [ row[0], row[0].prompt ] },
+        [],
+        ch_model
+    )
+
+    // Encode negative prompt
+    ENCODE_NEGATIVE_PROMPT(
+        ch_samplesheet.map { row -> [ row[0], row[0].negative_prompt ] },
+        [],
+        ch_model
+    )
+
+    // Denoise the latent image
+    def ch_denoise_input = NOISE_CREATE.out.latent
+        .join(ENCODE_PROMPT.out.conditioning)
+        .join(ENCODE_NEGATIVE_PROMPT.out.conditioning)
+        .join(NOISE_SCHEDULE.out.schedule)
+    DENOISE(
+        ch_denoise_input,
+        ch_model
+    )
+
+    // Decode the denoised latent into an image
+    VAE_DECODE(
+        DENOISE.out.denoised,
+        ch_model
+    )
 
     def ch_collated_versions = softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
         .mix(topic_versions_string)
