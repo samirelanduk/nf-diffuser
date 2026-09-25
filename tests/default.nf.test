@@ -19,8 +19,33 @@ nextflow_pipeline {
             def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
             // stable_content: All files in ${params.outdir}/ with stable content
             def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            def samples = new File("${projectDir}/tests/data/samplesheet.csv").readLines().drop(1).collect { line ->
+                line.split(',')[0]
+            }
+            def expected_sizes = [
+                TREE: [width: 296, height: 96],
+                SKY:  [width: 512, height: 512],
+            ]
             assert workflow.success
             assertAll(
+                { samples.each { id ->
+                    assert path("$outputDir/noise/${id}_latent.pt").exists()
+                    assert path("$outputDir/noise/${id}_schedule.txt").exists()
+
+                    ['positive', 'negative'].each { prompt ->
+                        assert path("$outputDir/clip/${prompt}/${id}_tokens.json").exists()
+                        assert path("$outputDir/clip/${prompt}/${id}_mappings.json").exists()
+                        assert path("$outputDir/clip/${prompt}/${id}_embedding.pt").exists()
+                        assert path("$outputDir/clip/${prompt}/${id}_conditioning.pt").exists()
+                    }
+
+                    assert path("$outputDir/denoise/${id}_denoised.pt").exists()
+
+                    assert path("$outputDir/vae/${id}_image.jpg").exists()
+                    def image = javax.imageio.ImageIO.read(new File("$outputDir/vae/${id}_image.jpg"))
+                    assert image.width == expected_sizes[id].width
+                    assert image.height == expected_sizes[id].height
+                } },
                 { assert snapshot(
                     // pipeline versions.yml file for multiqc from which Nextflow version is removed because we test pipelines on multiple Nextflow versions
                     removeNextflowVersion("$outputDir/pipeline_info/nf-diffuser_software_mqc_versions.yml"),

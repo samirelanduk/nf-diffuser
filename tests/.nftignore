@@ -1,4 +1,8 @@
 .DS_Store
+**/*_latent.pt
+**/*_conditioning.pt
+**/*_denoised.pt
+**/*_image.jpg
 multiqc/multiqc_data/multiqc.parquet
 multiqc/multiqc_data/multiqc.log
 multiqc/multiqc_data/multiqc_data.json
@@ -8,6 +12,3 @@ multiqc/multiqc_data/llms-full.txt
 multiqc/multiqc_plots/{svg,pdf,png}/*.{svg,pdf,png}
 multiqc/multiqc_report.html
 pipeline_info/*.{html,json,txt,yml}
-noise/*_latent.pt
-denoise/*_denoised.pt
-vae/*_image.jpg
