@@ -16,10 +16,10 @@ You will need to create a samplesheet with information about the images you woul
 
 ### Minimal samplesheet
 
-Only the `sample` and `positive` columns are required. Every other setting falls back to its default:
+Only the `sample` and `prompt` columns are required. Every other setting falls back to its default:
 
 ```csv title="samplesheet.csv"
-sample,positive
+sample,prompt
 TREE,"A photo of a tree"
 SKY,"A beautiful panorama of the sky"
 ```
@@ -29,22 +29,22 @@ SKY,"A beautiful panorama of the sky"
 All columns can be set per row. Optional columns can be left empty for individual rows, or left out of the samplesheet altogether:
 
 ```csv title="samplesheet.csv"
-sample,positive,negative,width,height,steps,cfg,sampler,schedule
+sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
 TREE,"A photo of a tree","animals, people, text",768,512,30,5,heun,exponential
 SKY,"A beautiful panorama of the sky",,,,,,,
 ```
 
-| Column     | Required | Default  | Description                                                                                                                                |
-| ---------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `sample`   | Yes      |          | Custom name identifying the image to be generated. Used to name output files. Must not contain spaces - the pipeline will exit if it does. |
-| `positive` | Yes      |          | The prompt describing what the generated image should contain.                                                                             |
-| `negative` | No       | (empty)  | The prompt describing what the generated image should avoid.                                                                               |
-| `width`    | No       | `512`    | Width of the generated image in pixels. Must be a whole number.                                                                            |
-| `height`   | No       | `512`    | Height of the generated image in pixels. Must be a whole number.                                                                           |
-| `steps`    | No       | `20`     | Number of denoising steps. More steps are slower but can give more detailed images. Must be a whole number.                                |
-| `cfg`      | No       | `7.5`    | Classifier-free guidance scale: how strongly generation is steered towards the positive prompt and away from the negative. Must be ≥ 1.    |
-| `sampler`  | No       | `euler`  | Sampling algorithm used to denoise the image: `euler` or `heun`. `heun` is more accurate but takes roughly twice as long per step.         |
-| `schedule` | No       | `karras` | Noise schedule: `karras` or `exponential`.                                                                                                 |
+| Column            | Required | Default  | Description                                                                                                                                |
+| ----------------- | -------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `sample`          | Yes      |          | Custom name identifying the image to be generated. Used to name output files. Must not contain spaces - the pipeline will exit if it does. |
+| `prompt`          | Yes      |          | The prompt describing what the generated image should contain.                                                                             |
+| `negative_prompt` | No       | (empty)  | The prompt describing what the generated image should avoid.                                                                               |
+| `width`           | No       | `512`    | Width of the generated image in pixels. Must be a whole number.                                                                            |
+| `height`          | No       | `512`    | Height of the generated image in pixels. Must be a whole number.                                                                           |
+| `steps`           | No       | `20`     | Number of denoising steps. More steps are slower but can give more detailed images. Must be a whole number.                                |
+| `cfg`             | No       | `7.5`    | Classifier-free guidance scale: how strongly generation is steered towards the prompt and away from the negative prompt. Must be ≥ 1.      |
+| `sampler`         | No       | `euler`  | Sampling algorithm used to denoise the image: `euler` or `heun`. `heun` is more accurate but takes roughly twice as long per step.         |
+| `schedule`        | No       | `karras` | Noise schedule: `karras` or `exponential`.                                                                                                 |
 
 Prompts frequently contain commas, so wrap them in double quotes as in the examples above.
 

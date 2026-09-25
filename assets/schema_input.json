@@ -13,16 +13,16 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "positive": {
+            "prompt": {
                 "type": "string",
-                "errorMessage": "Positive prompt must be provided",
-                "meta": ["positive"]
+                "errorMessage": "Prompt must be provided",
+                "meta": ["prompt"]
             },
-            "negative": {
+            "negative_prompt": {
                 "type": "string",
                 "default": "",
                 "errorMessage": "Negative prompt must be a string",
-                "meta": ["negative"]
+                "meta": ["negative_prompt"]
             },
             "width": {
                 "type": "integer",
@@ -64,6 +64,6 @@
                 "meta": ["schedule"]
             }
         },
-        "required": ["sample", "positive"]
+        "required": ["sample", "prompt"]
     }
 }

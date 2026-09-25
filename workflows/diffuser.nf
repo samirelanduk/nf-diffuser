@@ -5,8 +5,8 @@
 */
 include { NOISE_CREATE           } from '../modules/local/pydiffuse/noise/create'
 include { NOISE_SCHEDULE         } from '../modules/local/pydiffuse/noise/schedule'
-include { ENCODE_PROMPT as ENCODE_POSITIVE } from '../subworkflows/local/encode_prompt'
-include { ENCODE_PROMPT as ENCODE_NEGATIVE } from '../subworkflows/local/encode_prompt'
+include { ENCODE_PROMPT                   } from '../subworkflows/local/encode_prompt'
+include { ENCODE_PROMPT as ENCODE_NEGATIVE_PROMPT } from '../subworkflows/local/encode_prompt'
 include { DENOISE                } from '../modules/local/pydiffuse/sample/denoise'
 include { VAE_DECODE             } from '../modules/local/pydiffuse/vae/decode'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
@@ -75,24 +75,24 @@ workflow DIFFUSER {
         ch_noise_schedule_input
     )
 
-    // Encode positive prompt
-    ENCODE_POSITIVE(
-        ch_samplesheet.map { row -> [ row[0], row[0].positive ] },
+    // Encode prompt
+    ENCODE_PROMPT(
+        ch_samplesheet.map { row -> [ row[0], row[0].prompt ] },
         [],
         ch_model
     )
 
     // Encode negative prompt
-    ENCODE_NEGATIVE(
-        ch_samplesheet.map { row -> [ row[0], row[0].negative ] },
+    ENCODE_NEGATIVE_PROMPT(
+        ch_samplesheet.map { row -> [ row[0], row[0].negative_prompt ] },
         [],
         ch_model
     )
 
     // Denoise the latent image
     def ch_denoise_input = NOISE_CREATE.out.latent
-        .join(ENCODE_POSITIVE.out.conditioning)
-        .join(ENCODE_NEGATIVE.out.conditioning)
+        .join(ENCODE_PROMPT.out.conditioning)
+        .join(ENCODE_NEGATIVE_PROMPT.out.conditioning)
         .join(NOISE_SCHEDULE.out.schedule)
     DENOISE(
         ch_denoise_input,

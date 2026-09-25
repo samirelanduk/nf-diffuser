@@ -18,7 +18,7 @@
 
 1. Create a random starting latent at the requested size ([`pydiffuse noise create`](https://github.com/samirelanduk/pydiffuse))
 2. Build the noise schedule ([`pydiffuse noise schedule`](https://github.com/samirelanduk/pydiffuse))
-3. Encode the positive and negative prompts with CLIP: tokenize, embed and encode ([`pydiffuse clip`](https://github.com/samirelanduk/pydiffuse))
+3. Encode the prompt and negative prompt with CLIP: tokenize, embed and encode ([`pydiffuse clip`](https://github.com/samirelanduk/pydiffuse))
 4. Denoise the latent with the UNet using classifier-free guidance ([`pydiffuse sample denoise`](https://github.com/samirelanduk/pydiffuse))
 5. Decode the denoised latent into an image with the VAE ([`pydiffuse vae decode`](https://github.com/samirelanduk/pydiffuse))
 6. Report software versions ([`MultiQC`](http://multiqc.info/))
@@ -33,12 +33,12 @@ First, prepare a samplesheet with your prompts that looks as follows:
 `samplesheet.csv`:
 
 ```csv
-sample,positive,negative,width,height,steps,cfg,sampler,schedule
+sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
 TREE,"A photo of a tree","animals, people, text",768,512,30,5,heun,exponential
 SKY,"A beautiful panorama of the sky",,,,,,,
 ```
 
-Each row represents one image to generate. Only `sample` and `positive` are required; the remaining columns can be left empty or omitted to use their defaults.
+Each row represents one image to generate. Only `sample` and `prompt` are required; the remaining columns can be left empty or omitted to use their defaults.
 
 Now, you can run the pipeline using:
 

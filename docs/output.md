@@ -9,8 +9,8 @@ The directories listed below will be created in the results directory after the 
 ```tree
 results/
 ├── clip/
-│   ├── negative/
-│   └── positive/
+│   ├── negative_prompt/
+│   └── prompt/
 ├── denoise/
 ├── multiqc/
 ├── noise/
@@ -23,7 +23,7 @@ results/
 The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
 
 - [Noise](#noise) - Random starting latent and noise schedule
-- [Prompt encoding](#prompt-encoding) - CLIP conditioning for the positive and negative prompts
+- [Prompt encoding](#prompt-encoding) - CLIP conditioning for the prompt and negative prompt
 - [Denoising](#denoising) - Denoised latent produced by the UNet
 - [Image decoding](#image-decoding) - Final image decoded by the VAE
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
@@ -47,7 +47,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 <details markdown="1">
 <summary>Output files</summary>
 
-- `clip/positive/` and `clip/negative/`
+- `clip/prompt/` and `clip/negative_prompt/`
   - `<sample>_tokens.json`: prompt split into CLIP token IDs.
   - `<sample>_mappings.json`: mapping between tokens and the text of the prompt.
   - `<sample>_embedding.pt`: token embeddings.
@@ -55,7 +55,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 
 </details>
 
-The positive and negative prompts are each tokenized, embedded and encoded with the CLIP text encoder from the model. When no negative prompt is given, an empty prompt is encoded in its place.
+The prompt and negative prompt are each tokenized, embedded and encoded with the CLIP text encoder from the model. When no negative prompt is given, an empty prompt is encoded in its place.
 
 ### Denoising
 
@@ -67,7 +67,7 @@ The positive and negative prompts are each tokenized, embedded and encoded with 
 
 </details>
 
-The UNet from the model removes noise from the starting latent step by step, following the noise schedule. At each step it is steered towards the positive conditioning and away from the negative conditioning, with the strength set by `cfg`, using the chosen `sampler`.
+The UNet from the model removes noise from the starting latent step by step, following the noise schedule. At each step it is steered towards the prompt conditioning and away from the negative prompt conditioning, with the strength set by `cfg`, using the chosen `sampler`.
 
 ### Image decoding
 
