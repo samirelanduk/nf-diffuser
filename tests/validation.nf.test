@@ -11,7 +11,7 @@ nextflow_pipeline {
             params {
                 outdir = null
                 input  = "${projectDir}/tests/data/samplesheet.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -30,7 +30,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = null
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -106,7 +106,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "${projectDir}/assets/schema_input.json"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -125,7 +125,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "${projectDir}/tests/data/does_not_exist.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -153,7 +153,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/missing_sample.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -181,7 +181,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/spaces_sample.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -208,7 +208,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/missing_positive.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -236,7 +236,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/missing_negative.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -264,7 +264,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/bad_width.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -292,7 +292,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/bad_height.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -320,7 +320,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/fractional_width.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -348,7 +348,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/fractional_height.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -367,8 +367,8 @@ nextflow_pipeline {
             def sheet = new File("$launchDir/bad_steps.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height,steps,schedule
-                TREE,A photo of a tree,blurry,800,600,not_a_number,karras
+                sample,positive,negative,width,height,steps,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,not_a_number,euler,karras
                 """.stripIndent()
         }
 
@@ -376,7 +376,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/bad_steps.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -395,8 +395,8 @@ nextflow_pipeline {
             def sheet = new File("$launchDir/fractional_steps.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height,steps,schedule
-                TREE,A photo of a tree,blurry,800,600,20.5,karras
+                sample,positive,negative,width,height,steps,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,20.5,euler,karras
                 """.stripIndent()
         }
 
@@ -404,7 +404,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/fractional_steps.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
@@ -417,14 +417,42 @@ nextflow_pipeline {
         }
     }
 
+    test("Fails when the sampler is not a recognised algorithm") {
+
+        setup {
+            def sheet = new File("$launchDir/bad_sampler.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,positive,negative,width,height,steps,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,20,ancestral,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/bad_sampler.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'sampler'") && it.contains('Sampler must be a string and must be one of the following: euler, heun') } }
+            )
+        }
+    }
+
     test("Fails when the schedule is not a recognised algorithm") {
 
         setup {
             def sheet = new File("$launchDir/bad_schedule.csv")
             sheet.parentFile.mkdirs()
             sheet.text = """\
-                sample,positive,negative,width,height,steps,schedule
-                TREE,A photo of a tree,blurry,800,600,20,linear
+                sample,positive,negative,width,height,steps,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,20,euler,linear
                 """.stripIndent()
         }
 
@@ -432,7 +460,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input  = "$launchDir/bad_schedule.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 

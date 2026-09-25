@@ -2,11 +2,61 @@
     "-profile test": {
         "content": [
             {
+                "CLIP_EMBED": {
+                    "pydiffuse": "0.4.1",
+                    "python": "3.13.15"
+                },
+                "CLIP_ENCODE": {
+                    "pydiffuse": "0.4.1",
+                    "python": "3.13.15"
+                },
+                "CLIP_TOKENIZE": {
+                    "pydiffuse": "0.4.1",
+                    "python": "3.13.15"
+                },
+                "DENOISE": {
+                    "pydiffuse": "0.4.1",
+                    "python": "3.13.15"
+                },
+                "NOISE_CREATE": {
+                    "pydiffuse": "0.4.1",
+                    "python": "3.13.15"
+                },
+                "NOISE_SCHEDULE": {
+                    "pydiffuse": "0.4.1",
+                    "python": "3.13.15"
+                },
+                "VAE_DECODE": {
+                    "pydiffuse": "0.4.1",
+                    "python": "3.13.15"
+                },
                 "Workflow": {
                     "samirelanduk/nf-diffuser": "v1.0.0dev"
                 }
             },
             [
+                "clip",
+                "clip/negative",
+                "clip/negative/SKY_conditioning.pt",
+                "clip/negative/SKY_embedding.pt",
+                "clip/negative/SKY_mappings.json",
+                "clip/negative/SKY_tokens.json",
+                "clip/negative/TREE_conditioning.pt",
+                "clip/negative/TREE_embedding.pt",
+                "clip/negative/TREE_mappings.json",
+                "clip/negative/TREE_tokens.json",
+                "clip/positive",
+                "clip/positive/SKY_conditioning.pt",
+                "clip/positive/SKY_embedding.pt",
+                "clip/positive/SKY_mappings.json",
+                "clip/positive/SKY_tokens.json",
+                "clip/positive/TREE_conditioning.pt",
+                "clip/positive/TREE_embedding.pt",
+                "clip/positive/TREE_mappings.json",
+                "clip/positive/TREE_tokens.json",
+                "denoise",
+                "denoise/SKY_denoised.pt",
+                "denoise/TREE_denoised.pt",
                 "multiqc",
                 "multiqc/multiqc_data",
                 "multiqc/multiqc_data/llms-full.txt",
@@ -17,14 +67,40 @@
                 "multiqc/multiqc_data/multiqc_software_versions.txt",
                 "multiqc/multiqc_data/multiqc_sources.txt",
                 "multiqc/multiqc_report.html",
+                "noise",
+                "noise/SKY_latent.pt",
+                "noise/SKY_schedule.txt",
+                "noise/TREE_latent.pt",
+                "noise/TREE_schedule.txt",
                 "pipeline_info",
-                "pipeline_info/nf-diffuser_software_mqc_versions.yml"
+                "pipeline_info/nf-diffuser_software_mqc_versions.yml",
+                "vae",
+                "vae/SKY_image.jpg",
+                "vae/TREE_image.jpg"
             ],
             [
-                "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f"
+                "SKY_conditioning.pt:md5,958b05c4096ea0705621f5ae0cbed466",
+                "SKY_embedding.pt:md5,b1f6c25ce2b2bdca005b58bfa0f25cbd",
+                "SKY_mappings.json:md5,24115fb52064ee85046d3c192ef200f8",
+                "SKY_tokens.json:md5,c568b7314f9d3fe4ce34d0b49bf79eba",
+                "TREE_conditioning.pt:md5,79fa6bd749cbc244ed5ba1479c10eca4",
+                "TREE_embedding.pt:md5,deca1875f5335f8d8519e44c79783a9f",
+                "TREE_mappings.json:md5,227e5ce485ad139db9d77c8085cab132",
+                "TREE_tokens.json:md5,b2bccdce426229af036c64e29f9f9a1a",
+                "SKY_conditioning.pt:md5,9ba1b6e0496a446d9b46686d64f20e09",
+                "SKY_embedding.pt:md5,1026584102118434ff42cd47aa395a73",
+                "SKY_mappings.json:md5,6398da3280ac4e05cc5a7b0910779ae2",
+                "SKY_tokens.json:md5,a3f64280b4b4acff50addc2a6ba8948d",
+                "TREE_conditioning.pt:md5,b765993276ad24aacf17e93abf03b974",
+                "TREE_embedding.pt:md5,d5bec03715bf7454b0dd92c45e7cf3d5",
+                "TREE_mappings.json:md5,66af12e047200d547995a2015bbe7f43",
+                "TREE_tokens.json:md5,a8df998ca0ce87c9ecbc6c4c65b10104",
+                "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f",
+                "SKY_schedule.txt:md5,31f49a63f28ee79eacc901668359064a",
+                "TREE_schedule.txt:md5,3f544e69d306c26bf19badc4473e32e6"
             ]
         ],
-        "timestamp": "2026-09-03T00:43:07.136711",
+        "timestamp": "2026-09-25T20:53:14.351825",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

@@ -10,7 +10,7 @@ nextflow_pipeline {
             params {
                 outdir = "$outputDir"
                 input = "${projectDir}/tests/data/samplesheet.csv"
-                model = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors"
+                model = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
 
