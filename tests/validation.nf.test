@@ -193,6 +193,35 @@ nextflow_pipeline {
         }
     }
 
+    test("Fails when sample names are not unique") {
+
+        setup {
+            def sheet = new File("$launchDir/duplicate_sample.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height
+                TREE,A photo of a tree,blurry,800,600
+                TREE,A painting of a tree,blurry,800,600
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/duplicate_sample.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains('Detected duplicate entries') && it.contains('TREE') } }
+            )
+        }
+    }
+
     test("Fails when a samplesheet row is missing the prompt") {
 
         setup {
@@ -385,6 +414,34 @@ nextflow_pipeline {
                 { assert workflow.failed },
                 { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer') } }
+            )
+        }
+    }
+
+    test("Fails when steps is less than 1") {
+
+        setup {
+            def sheet = new File("$launchDir/low_steps.csv")
+            sheet.parentFile.mkdirs()
+            sheet.text = """\
+                sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+                TREE,A photo of a tree,blurry,800,600,0,7.5,euler,karras
+                """.stripIndent()
+        }
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "$launchDir/low_steps.csv"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer greater than or equal to 1') } }
             )
         }
     }
