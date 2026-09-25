@@ -32,11 +32,11 @@ nextflow_pipeline {
                     assert path("$outputDir/noise/${id}_latent.pt").exists()
                     assert path("$outputDir/noise/${id}_schedule.txt").exists()
 
-                    ['positive', 'negative'].each { prompt ->
-                        assert path("$outputDir/clip/${prompt}/${id}_tokens.json").exists()
-                        assert path("$outputDir/clip/${prompt}/${id}_mappings.json").exists()
-                        assert path("$outputDir/clip/${prompt}/${id}_embedding.pt").exists()
-                        assert path("$outputDir/clip/${prompt}/${id}_conditioning.pt").exists()
+                    ['prompt', 'negative_prompt'].each { dir ->
+                        assert path("$outputDir/clip/${dir}/${id}_tokens.json").exists()
+                        assert path("$outputDir/clip/${dir}/${id}_mappings.json").exists()
+                        assert path("$outputDir/clip/${dir}/${id}_embedding.pt").exists()
+                        assert path("$outputDir/clip/${dir}/${id}_conditioning.pt").exists()
                     }
 
                     assert path("$outputDir/denoise/${id}_denoised.pt").exists()
