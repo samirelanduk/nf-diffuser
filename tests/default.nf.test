@@ -57,4 +57,29 @@ nextflow_pipeline {
             )
         }
     }
+
+    test("--model_name") {
+
+        when {
+            params {
+                outdir     = "$outputDir"
+                input      = "${projectDir}/tests/data/samplesheet.csv"
+                model      = null
+                model_name = "tiny"
+                models     = [
+                    tiny: [
+                        model: "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+                    ]
+                ]
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert path("$outputDir/vae/TREE_image.jpg").exists() },
+                { assert path("$outputDir/vae/SKY_image.jpg").exists() }
+            )
+        }
+    }
 }
