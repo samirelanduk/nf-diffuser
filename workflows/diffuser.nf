@@ -8,6 +8,7 @@ include { NOISE_SCHEDULE         } from '../modules/local/pydiffuse/noise/schedu
 include { ENCODE_PROMPT as ENCODE_POSITIVE } from '../subworkflows/local/encode_prompt'
 include { ENCODE_PROMPT as ENCODE_NEGATIVE } from '../subworkflows/local/encode_prompt'
 include { DENOISE                } from '../modules/local/pydiffuse/sample/denoise'
+include { VAE_DECODE             } from '../modules/local/pydiffuse/vae/decode'
 include { MULTIQC                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
@@ -98,6 +99,11 @@ workflow DIFFUSER {
         ch_model
     )
 
+    // Decode the denoised latent into an image
+    VAE_DECODE(
+        DENOISE.out.denoised,
+        ch_model
+    )
 
     def ch_collated_versions = softwareVersionsToYAML(ch_versions.mix(topic_versions.versions_file))
         .mix(topic_versions_string)
