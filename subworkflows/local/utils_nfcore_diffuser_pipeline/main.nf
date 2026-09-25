@@ -82,6 +82,11 @@ workflow PIPELINE_INITIALISATION {
     )
 
     //
+    // Custom validation for pipeline parameters
+    //
+    validateInputParameters()
+
+    //
     // Create channel from input file provided through params.input
     //
 
@@ -149,11 +154,47 @@ workflow PIPELINE_COMPLETION {
 */
 
 //
+// Check and validate pipeline parameters
+//
+def validateInputParameters() {
+    modelExistsError()
+    if (!params.model && !getModelAttribute('model')) {
+        error("Model weights not specified with e.g. '--model_name SD1.5' or '--model model.safetensors'.")
+    }
+}
+
+//
 // Validate channels from input samplesheet
 //
 def validateInputSamplesheet(input) {
     return input
 }
+//
+// Get attribute from model catalogue config file e.g. model
+//
+def getModelAttribute(attribute) {
+    if (params.models && params.model_name && params.models.containsKey(params.model_name)) {
+        if (params.models[ params.model_name ].containsKey(attribute)) {
+            return params.models[ params.model_name ][ attribute ]
+        }
+    }
+    return null
+}
+
+//
+// Exit pipeline if incorrect --model_name key provided
+//
+def modelExistsError() {
+    if (params.models && params.model_name && !params.models.containsKey(params.model_name)) {
+        def error_string = "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n" +
+            "  Model '${params.model_name}' not found in any config files provided to the pipeline.\n" +
+            "  Currently, the available model keys are:\n" +
+            "  ${params.models.keySet().join(", ")}\n" +
+            "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+        error(error_string)
+    }
+}
+
 //
 // Generate methods description for MultiQC
 //

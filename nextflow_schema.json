@@ -48,15 +48,39 @@
             "type": "object",
             "fa_icon": "fas fa-brain",
             "description": "Model weights required for the workflow.",
-            "required": ["model"],
             "properties": {
+                "model_name": {
+                    "type": "string",
+                    "default": "SD1.5",
+                    "description": "Name of a model in the Hugging Face model catalogue.",
+                    "fa_icon": "fas fa-book",
+                    "pattern": "^\\S+$",
+                    "errorMessage": "The model name must not contain spaces.",
+                    "help_text": "If using a model available in the pipeline's Hugging Face model catalogue, use this parameter to give the name of the model to download, e.g. `--model_name SD1.5`. The weights will be downloaded from Hugging Face at a fixed revision.\n\nSee the [usage documentation](https://github.com/samirelanduk/nf-diffuser/blob/master/docs/usage.md#hugging-face-models) for the list of available models."
+                },
                 "model": {
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
                     "pattern": "^\\S+\\.safetensors$",
                     "description": "Path to the diffusion model weights file.",
+                    "help_text": "This parameter is mandatory if `--model_name` is not specified. If both are given, this takes precedence.",
                     "fa_icon": "fas fa-file"
+                },
+                "hf_ignore": {
+                    "type": "boolean",
+                    "description": "Do not load the Hugging Face model catalogue config.",
+                    "fa_icon": "fas fa-ban",
+                    "hidden": true,
+                    "help_text": "Prevent loading of `hf.config` when running the pipeline. Use this option if you encounter conflicts between custom parameters and those in the Hugging Face model catalogue configuration."
+                },
+                "hf_base": {
+                    "type": "string",
+                    "description": "The base URL to download Hugging Face models from.",
+                    "fa_icon": "fas fa-cloud-download-alt",
+                    "hidden": true,
+                    "default": "https://huggingface.co",
+                    "help_text": "Change this to use a mirror of the Hugging Face Hub, e.g. an institutional proxy. The mirror must serve files at `<hf_base>/<repo>/resolve/<revision>/<filename>`."
                 }
             }
         },
