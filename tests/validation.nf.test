@@ -221,34 +221,6 @@ nextflow_pipeline {
         }
     }
 
-    test("Fails when a samplesheet row is missing the negative prompt") {
-
-        setup {
-            def sheet = new File("$launchDir/missing_negative.csv")
-            sheet.parentFile.mkdirs()
-            sheet.text = """\
-                sample,positive,negative,width,height
-                TREE,A photo of a tree,,800,600
-                """.stripIndent()
-        }
-
-        when {
-            params {
-                outdir = "$outputDir"
-                input  = "$launchDir/missing_negative.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
-            }
-        }
-
-        then {
-            assertAll(
-                { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
-                { assert workflow.stderr.any { it.contains('Missing required field(s): negative') } }
-            )
-        }
-    }
-
     test("Fails when the width is not an integer") {
 
         setup {

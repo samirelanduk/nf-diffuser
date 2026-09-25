@@ -20,7 +20,8 @@
             },
             "negative": {
                 "type": "string",
-                "errorMessage": "Negative prompt must be provided",
+                "default": "",
+                "errorMessage": "Negative prompt must be a string",
                 "meta": ["negative"]
             },
             "width": {
@@ -63,6 +64,6 @@
                 "meta": ["schedule"]
             }
         },
-        "required": ["sample", "positive", "negative"]
+        "required": ["sample", "positive"]
     }
 }
