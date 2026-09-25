@@ -3,7 +3,7 @@ process NOISE_SCHEDULE {
     label "process_single"
 
     conda "${moduleDir}/environment.yml"
-    container "docker.io/samirelanduk/pydiffuse:0.4.0"
+    container "docker.io/samirelanduk/pydiffuse:0.4.1"
 
     input:
     tuple val(meta), val(steps)

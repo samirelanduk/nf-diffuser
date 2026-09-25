@@ -14,8 +14,8 @@ nextflow_process {
         when {
             process {
                 """
-                input[0] = [[id: "test"], file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/data/small-flower.pt")]
-                input[1] = file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/vae_model.safetensors")
+                input[0] = [[id: "test"], file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/data/small-flower.pt")]
+                input[1] = file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors")
                 """
             }
         }
@@ -25,8 +25,8 @@ nextflow_process {
                 { assert process.success },
                 { assert process.out.image[0][0] == [id: "test"] },
                 { assert file(process.out.image[0][1]).name == "test_image.jpg" },
-                { assert javax.imageio.ImageIO.read(file(process.out.image[0][1])).width == 100 },
-                { assert javax.imageio.ImageIO.read(file(process.out.image[0][1])).height == 74 },
+                { assert javax.imageio.ImageIO.read(file(process.out.image[0][1])).width == 96 },
+                { assert javax.imageio.ImageIO.read(file(process.out.image[0][1])).height == 72 },
                 { assert snapshot(process.out.versions_python).match("basic_versions_python") },
                 { assert snapshot(process.out.versions_pydiffuse).match("basic_versions_pydiffuse") },
             )

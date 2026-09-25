@@ -9,7 +9,7 @@ nextflow_process {
     tag "pydiffuse"
     tag "pydiffuse/sample/denoise"
 
-    def data = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli"
+    def data = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli"
 
     def firstValue = { path ->
         def zip = new java.util.zip.ZipFile(path)
@@ -35,7 +35,7 @@ nextflow_process {
                     file("$data/data/negative-conditioning.pt"),
                     file("$launchDir/schedule.txt"),
                 ]
-                input[1] = file("$data/models/unet_model.safetensors")
+                input[1] = file("$data/models/sd15.safetensors")
                 """
             }
         }
@@ -45,7 +45,7 @@ nextflow_process {
                 { assert process.success },
                 { assert process.out.denoised[0][0] == [id: "test"] },
                 { assert file(process.out.denoised[0][1]).name == "test_denoised.pt" },
-                { assert Math.abs(firstValue(process.out.denoised[0][1]) - 2.982) < 0.01 },
+                { assert Math.abs(firstValue(process.out.denoised[0][1]) - 0.181) < 0.01 },
                 { assert snapshot(process.out.versions_python).match("basic_versions_python") },
                 { assert snapshot(process.out.versions_pydiffuse).match("basic_versions_pydiffuse") },
             )
@@ -68,7 +68,7 @@ nextflow_process {
                     file("$data/data/positive-conditioning.pt"),
                     file("$launchDir/schedule.txt"),
                 ]
-                input[1] = file("$data/models/unet_model.safetensors")
+                input[1] = file("$data/models/sd15.safetensors")
                 """
             }
         }
@@ -99,7 +99,7 @@ nextflow_process {
                     file("$data/data/negative-conditioning.pt"),
                     file("$launchDir/schedule.txt"),
                 ]
-                input[1] = file("$data/models/unet_model.safetensors")
+                input[1] = file("$data/models/sd15.safetensors")
                 """
             }
         }
@@ -107,7 +107,7 @@ nextflow_process {
         then {
             assertAll(
                 { assert process.success },
-                { assert Math.abs(firstValue(process.out.denoised[0][1]) - 2.567) < 0.01 },
+                { assert Math.abs(firstValue(process.out.denoised[0][1]) - 1.039) < 0.01 },
                 { assert snapshot(process.out.versions_python).match("ext_versions_python") },
                 { assert snapshot(process.out.versions_pydiffuse).match("ext_versions_pydiffuse") },
             )

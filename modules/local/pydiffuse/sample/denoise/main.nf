@@ -1,9 +1,9 @@
 process DENOISE {
     tag "$meta.id"
-    label "process_medium"
+    label "process_high"
 
     conda "${moduleDir}/environment.yml"
-    container "docker.io/samirelanduk/pydiffuse:0.4.0"
+    container "docker.io/samirelanduk/pydiffuse:0.4.1"
 
     input:
     tuple val(meta), path(latent), path(positive, stageAs: "positive/*"), path(negative, stageAs: "negative/*"), path(schedule)
