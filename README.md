@@ -14,7 +14,7 @@
 
 ## Introduction
 
-**samirelanduk/nf-diffuser** is a generative AI pipeline that creates images from text prompts using latent diffusion. It takes a samplesheet of text prompts, with optional negative prompts, plus a Stable Diffusion 1.5 `.safetensors` checkpoint, and produces one JPEG per prompt along with the intermediate latents and conditioning tensors.
+**samirelanduk/nf-diffuser** is a generative AI pipeline that creates images from text prompts using latent diffusion. It takes a samplesheet of text prompts, with optional negative prompts, plus a Stable Diffusion 1.5 `.safetensors` checkpoint (either your own, or one of several popular models downloaded from Hugging Face by name), and produces one JPEG per prompt along with the intermediate latents and conditioning tensors.
 
 1. Create a random starting latent at the requested size ([`pydiffuse noise create`](https://github.com/samirelanduk/pydiffuse))
 2. Build the noise schedule ([`pydiffuse noise schedule`](https://github.com/samirelanduk/pydiffuse))
@@ -46,7 +46,6 @@ Now, you can run the pipeline using:
 nextflow run samirelanduk/nf-diffuser \
    -profile <docker/singularity/conda> \
    --input samplesheet.csv \
-   --model <MODEL>.safetensors \
    --outdir <OUTDIR>
 ```
 
