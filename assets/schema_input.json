@@ -41,6 +41,13 @@
                 "errorMessage": "Steps must be an integer",
                 "meta": ["steps"]
             },
+            "cfg": {
+                "type": "number",
+                "default": 7.5,
+                "minimum": 1,
+                "errorMessage": "CFG must be a number greater than or equal to 1",
+                "meta": ["cfg"]
+            },
             "sampler": {
                 "type": "string",
                 "default": "euler",
