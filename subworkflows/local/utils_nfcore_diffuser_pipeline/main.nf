@@ -32,6 +32,7 @@ workflow PIPELINE_INITIALISATION {
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
+    prompt            //  string: Prompt to use instead of a samplesheet
     help              // boolean: Display help message and exit
     help_full         // boolean: Show the full help message
     show_hidden       // boolean: Show hidden parameters in the help message
@@ -87,11 +88,11 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     //
-    // Create channel from input file provided through params.input
+    // Create channel from input file provided through params.input, or from params.prompt
     //
 
     channel
-        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
+        .fromList(prompt ? promptToSamplesheetList(prompt) : samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
         .map { samplesheet ->
             validateInputSamplesheet(samplesheet)
         }
@@ -157,6 +158,9 @@ workflow PIPELINE_COMPLETION {
 // Check and validate pipeline parameters
 //
 def validateInputParameters() {
+    if ([params.input, params.prompt].count { it } != 1) {
+        error("Provide exactly one of '--input samplesheet.csv' or '--prompt \"Some description\"'.")
+    }
     modelExistsError()
     if (!params.model && !getModelAttribute('model')) {
         error("Model weights not specified with e.g. '--model_name SD1.5' or '--model model.safetensors'.")
@@ -169,6 +173,19 @@ def validateInputParameters() {
 def validateInputSamplesheet(input) {
     return input
 }
+
+//
+// Create the same structure samplesheetToList returns for a single-row samplesheet
+//
+def promptToSamplesheetList(prompt) {
+    def schema = new groovy.json.JsonSlurper().parse(file("${projectDir}/assets/schema_input.json"))
+    def row = [ sample: 'prompt', prompt: prompt ]
+    def meta = schema.items.properties.collectEntries { column, property ->
+        [ property.meta[0], row.containsKey(column) ? row[column] : property.default ]
+    }
+    return [ [ meta ] ]
+}
+
 //
 // Get attribute from model catalogue config file e.g. model
 //
