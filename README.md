@@ -49,6 +49,8 @@ nextflow run samirelanduk/nf-diffuser \
    --outdir <OUTDIR>
 ```
 
+Alternatively, to generate a single image with default settings, replace `--input samplesheet.csv` with `--prompt "A photo of a tree"`.
+
 > [!WARNING]
 > Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_; see [docs](https://nf-co.re/docs/running/run-pipelines#using-parameter-files).
 

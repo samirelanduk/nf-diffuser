@@ -50,6 +50,16 @@ Prompts frequently contain commas, so wrap them in double quotes as in the examp
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
+## Single prompt input
+
+To generate a single image without creating a samplesheet, provide the prompt directly with `--prompt` instead of `--input`:
+
+```bash
+--prompt "A photo of a tree"
+```
+
+This is equivalent to a samplesheet with one row whose `sample` is `prompt` and whose optional columns are left empty, so all settings use their defaults and output files are prefixed with `prompt`. The `--input` and `--prompt` parameters are mutually exclusive: exactly one must be provided.
+
 ## Model
 
 The pipeline needs a Stable Diffusion 1.5 checkpoint in [safetensors](https://huggingface.co/docs/safetensors) format, containing the CLIP text encoder, UNet and VAE weights in a single file. The same model is used for every sample in the run.
