@@ -5,31 +5,13 @@ nextflow_pipeline {
     tag "pipeline"
     tag "validation"
 
-    test("Fails when --outdir is missing") {
-
-        when {
-            params {
-                outdir = null
-                input  = "${projectDir}/tests/data/samplesheet.csv"
-                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
-            }
-        }
-
-        then {
-            assertAll(
-                { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
-                { assert workflow.stderr.any { it.contains('Missing required parameter(s): outdir') } }
-            )
-        }
-    }
-
-    test("Fails when --input is missing") {
+    test("Fails when --input and --prompt are both missing") {
 
         when {
             params {
                 outdir = "$outputDir"
                 input  = null
+                prompt = null
                 model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
             }
         }
@@ -37,8 +19,26 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
-                { assert workflow.stderr.any { it.contains('Missing required parameter(s): input') } }
+                { assert workflow.stdout.any { it.contains("Provide exactly one of '--input samplesheet.csv' or '--prompt \"Some description\"'.") } }
+            )
+        }
+    }
+
+    test("Fails when --input and --prompt are both provided") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = "${projectDir}/tests/data/samplesheet.csv"
+                prompt = "A photo of a tree"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains("Provide exactly one of '--input samplesheet.csv' or '--prompt \"Some description\"'.") } }
             )
         }
     }

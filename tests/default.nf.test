@@ -58,6 +58,28 @@ nextflow_pipeline {
         }
     }
 
+    test("--prompt") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = null
+                prompt = "A photo of a tree, at dusk"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            def image = javax.imageio.ImageIO.read(new File("$outputDir/vae/prompt_image.jpg"))
+            assertAll(
+                { assert workflow.success },
+                { assert image.width == 512 },
+                { assert image.height == 512 },
+                { assert path("$outputDir/clip/prompt/prompt_mappings.json").text.contains("dusk</w>") }
+            )
+        }
+    }
+
     test("--model_name") {
 
         when {

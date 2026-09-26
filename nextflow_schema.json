@@ -10,7 +10,6 @@
             "type": "object",
             "fa_icon": "fas fa-terminal",
             "description": "Define where the pipeline should find input data and save output data.",
-            "required": ["input", "outdir"],
             "properties": {
                 "input": {
                     "type": "string",
@@ -23,9 +22,16 @@
                     "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
                     "fa_icon": "fas fa-file-csv"
                 },
+                "prompt": {
+                    "type": "string",
+                    "description": "Prompt describing a single image to generate, as an alternative to providing a samplesheet with `--input`.",
+                    "help_text": "Generates one image named `prompt`, with every other setting at its samplesheet default. Exactly one of `--input` or `--prompt` must be provided.",
+                    "fa_icon": "fas fa-keyboard"
+                },
                 "outdir": {
                     "type": "string",
                     "format": "directory-path",
+                    "default": "results",
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
