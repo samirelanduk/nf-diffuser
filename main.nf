@@ -16,6 +16,7 @@
 include { DIFFUSER  } from './workflows/diffuser'
 include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_diffuser_pipeline'
 include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_diffuser_pipeline'
+include { getModelAttribute       } from './subworkflows/local/utils_nfcore_diffuser_pipeline'
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     NAMED WORKFLOWS FOR PIPELINE
@@ -37,7 +38,7 @@ workflow NF_DIFFUSER {
     //
     DIFFUSER (
         samplesheet,
-        params.model,
+        params.model ?: getModelAttribute('model'),
         params.multiqc_config,
         params.multiqc_logo,
         params.multiqc_methods_description,

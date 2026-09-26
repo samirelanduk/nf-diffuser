@@ -4,7 +4,7 @@
 
 ## Introduction
 
-samirelanduk/nf-diffuser generates images from text prompts using latent diffusion. Each row of the input samplesheet describes one image: the prompt to steer generation towards, optionally a prompt to steer it away from, and the settings used to generate it. A Stable Diffusion 1.5 model checkpoint must also be provided.
+samirelanduk/nf-diffuser generates images from text prompts using latent diffusion. Each row of the input samplesheet describes one image: the prompt to steer generation towards, optionally a prompt to steer it away from, and the settings used to generate it. Stable Diffusion 1.5 is used by default, but any compatible model checkpoint can be provided.
 
 ## Samplesheet input
 
@@ -52,20 +52,72 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 
 ## Model
 
-The pipeline needs a Stable Diffusion 1.5 checkpoint in [safetensors](https://huggingface.co/docs/safetensors) format, containing the CLIP text encoder, UNet and VAE weights in a single file. Specify its location with:
+The pipeline needs a Stable Diffusion 1.5 checkpoint in [safetensors](https://huggingface.co/docs/safetensors) format, containing the CLIP text encoder, UNet and VAE weights in a single file. The same model is used for every sample in the run.
+
+By default, the pipeline downloads [Stable Diffusion 1.5](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5) itself, so no model needs to be specified. To use a different model, either give its name from the pipeline's [Hugging Face model catalogue](#hugging-face-models):
+
+```bash
+--model_name DreamShaper8
+```
+
+Alternatively, specify the location of any checkpoint file, either a local path or a URL:
 
 ```bash
 --model '[path to model.safetensors]'
 ```
 
-The same model is used for every sample in the run.
+`--model` always takes precedence over `--model_name`, including the default.
+
+### Hugging Face models
+
+In the same way that nf-core pipelines use [iGenomes](https://nf-co.re/docs/usage/reference_genomes) so that a reference genome can be selected with `--genome GRCh38`, this pipeline has a config file that maps model names to checkpoint files on the [Hugging Face Hub](https://huggingface.co/). Use `--model_name` with one of the keys below, and the checkpoint will be downloaded automatically. Every entry is pinned to a specific commit of its repository, so a given `--model_name` always resolves to exactly the same weights.
+
+| Key                     | Hugging Face repository                                                                                           | Size   |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------- | ------ |
+| `SD1.5`                 | [stable-diffusion-v1-5/stable-diffusion-v1-5](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5) | 4.3 GB |
+| `DreamShaper8`          | [Lykon/DreamShaper](https://huggingface.co/Lykon/DreamShaper)                                                     | 2.1 GB |
+| `CyberRealistic9`       | [cyberdelia/CyberRealistic](https://huggingface.co/cyberdelia/CyberRealistic)                                     | 2.1 GB |
+| `Openjourney`           | [prompthero/openjourney](https://huggingface.co/prompthero/openjourney)                                           | 2.1 GB |
+| `DreamlikeDiffusion1.0` | [dreamlike-art/dreamlike-diffusion-1.0](https://huggingface.co/dreamlike-art/dreamlike-diffusion-1.0)             | 2.1 GB |
+
+To see the exact files used, look at [`conf/hf.config`](../conf/hf.config). Each model is released under its own licence, so check the model card linked above before using the outputs.
+
+Checkpoints are large (2 to 4 GB) and are downloaded into the Nextflow work directory at the start of each run. `-resume` will reuse a previous download, but if you run the pipeline often it is faster to download the file once and pass it with `--model`.
+
+#### Using a mirror
+
+Files are downloaded from `https://huggingface.co` by default. If you have access to a mirror of the Hugging Face Hub, point the pipeline at it with `--hf_base`:
+
+```bash
+--hf_base 'https://hf-mirror.example.org'
+```
+
+#### Adding your own models
+
+As with iGenomes, the catalogue is just a `params.models` map, so you can supply your own in a custom config file and pass it with `-c`:
+
+```groovy title="my_models.config"
+params {
+    models {
+        'MyModel' {
+            model = 'https://huggingface.co/<owner>/<repo>/resolve/<commit>/<file>.safetensors'
+        }
+    }
+}
+```
+
+```bash
+nextflow run samirelanduk/nf-diffuser -c my_models.config --model_name MyModel ...
+```
+
+If the built-in catalogue conflicts with your own config, it can be disabled entirely with `--hf_ignore`.
 
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run samirelanduk/nf-diffuser --input ./samplesheet.csv --model ./model.safetensors --outdir ./results -profile docker
+nextflow run samirelanduk/nf-diffuser --input ./samplesheet.csv --outdir ./results -profile docker
 ```
 
 This will launch the pipeline with the `docker` configuration profile. See below for more information about profiles.
@@ -96,7 +148,6 @@ with:
 
 ```yaml title="params.yaml"
 input: './samplesheet.csv'
-model: './model.safetensors'
 outdir: './results/'
 <...>
 ```

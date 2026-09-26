@@ -43,21 +43,60 @@ nextflow_pipeline {
         }
     }
 
-    test("Fails when --model is missing") {
+    test("Fails when --model and --model_name are missing") {
 
         when {
             params {
-                outdir = "$outputDir"
-                input  = "${projectDir}/tests/data/samplesheet.csv"
-                model  = null
+                outdir     = "$outputDir"
+                input      = "${projectDir}/tests/data/samplesheet.csv"
+                model      = null
+                model_name = null
             }
         }
 
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
-                { assert workflow.stderr.any { it.contains('Missing required parameter(s): model') } }
+                { assert workflow.stdout.any { it.contains("Model weights not specified with e.g. '--model_name SD1.5' or '--model model.safetensors'.") } }
+            )
+        }
+    }
+
+    test("Fails when --model_name is not in the catalogue") {
+
+        when {
+            params {
+                outdir     = "$outputDir"
+                input      = "${projectDir}/tests/data/samplesheet.csv"
+                model_name = "SD9.9"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains("Model 'SD9.9' not found in any config files provided to the pipeline.") } },
+                { assert workflow.stdout.any { it.contains('SD1.5') } }
+            )
+        }
+    }
+
+    test("Fails when --model_name is given but the catalogue is ignored") {
+
+        when {
+            params {
+                outdir     = "$outputDir"
+                input      = "${projectDir}/tests/data/samplesheet.csv"
+                model      = null
+                model_name = "SD1.5"
+                hf_ignore  = true
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains("Model weights not specified") } }
             )
         }
     }
