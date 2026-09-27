@@ -1,0 +1,119 @@
+name: imageqc_stats
+description: Calculates basic statistics of an image's pixels - brightness, contrast, clipping, sharpness, noise, colourfulness and entropy.
+keywords:
+  - image
+  - qc
+  - sharpness
+  - noise
+  - statistics
+tools:
+  - numpy:
+      description: Fundamental package for array computing with Python.
+      homepage: https://numpy.org/
+      documentation: https://numpy.org/doc/
+      licence: ["BSD-3-Clause"]
+      args_id: "$args"
+  - pillow:
+      description: Python imaging library.
+      homepage: https://python-pillow.org/
+      documentation: https://pillow.readthedocs.io/
+      licence: ["MIT-CMU"]
+      args_id: ""
+  - python:
+      description: Python runtime used to execute the module's script.
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      licence: ["Python-2.0"]
+      identifier: biotools:python
+      args_id: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ].
+    - image:
+        type: file
+        description: Image to assess.
+        pattern: "*.{jpg,jpeg,png}"
+output:
+  stats:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ].
+      - "${meta.id}_imageqc_stats.tsv":
+          type: file
+          description: |
+            Tab-separated file with a Sample column and one column per
+            statistic, and a single row for the image.
+          pattern: "*_imageqc_stats.tsv"
+
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - python:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_numpy:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - numpy:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import numpy; print(numpy.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_pillow:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - pillow:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import PIL; print(PIL.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - python:
+          type: string
+          description: The tool name
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - numpy:
+          type: string
+          description: The tool name
+      - 'python3 -c "import numpy; print(numpy.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - pillow:
+          type: string
+          description: The tool name
+      - 'python3 -c "import PIL; print(PIL.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"

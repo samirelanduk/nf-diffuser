@@ -1,0 +1,32 @@
+{
+    "gradient_versions": {
+        "content": [
+            [
+                [
+                    "IMAGEQC_STATS",
+                    "python",
+                    "3.13.15"
+                ]
+            ],
+            [
+                [
+                    "IMAGEQC_STATS",
+                    "numpy",
+                    "2.5.2"
+                ]
+            ],
+            [
+                [
+                    "IMAGEQC_STATS",
+                    "pillow",
+                    "12.3.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-30T18:07:10.822254",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
