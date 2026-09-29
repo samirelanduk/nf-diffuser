@@ -1,0 +1,43 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: "image_qc"
+description: Assesses the quality and prompt adherence of generated images, producing per-image metric files and a thumbnail gallery for MultiQC.
+keywords:
+  - image
+  - qc
+  - clipscore
+  - pickscore
+  - multiqc
+components:
+  - imageqc/stats
+  - imageqc/clipscore
+  - imageqc/gallery
+input:
+  - ch_images:
+      type: file
+      description: |
+        The images to assess. The meta map should contain prompt and
+        negative_prompt for prompt adherence scoring.
+        Structure: [ val(meta), path(image) ]
+  - clipscore_model:
+      type: file
+      description: |
+        Files of a Hugging Face transformers CLIP model to calculate CLIPScore
+        with, or [] to skip CLIPScore.
+        Structure: [ path(file), ... ]
+  - pickscore_model:
+      type: file
+      description: |
+        Files of the PickScore model, or [] to skip PickScore.
+        Structure: [ path(file), ... ]
+output:
+  - multiqc_files:
+      type: file
+      description: |
+        Per-image metric TSVs (*_imageqc_stats.tsv, *_clipscore.tsv,
+        *_pickscore.tsv) and imageqc_gallery.html, which the pipeline's
+        MultiQC config turns into report sections.
+        Structure: [ path(file) ]
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"

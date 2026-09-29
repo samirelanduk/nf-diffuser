@@ -26,7 +26,7 @@ nextflow_process {
             process {
                 """
                 input[0] = [
-                    [id: "imageqc_gallery"],
+                    [id: "test"],
                     [
                         [id: "ONE", prompt: "A <b>bold</b> 'quoted' \\\$prompt", negative_prompt: "", steps: 20, cfg: 7.5, image: "ONE_image.png"],
                         [id: "TWO", prompt: "Nothing", negative_prompt: "noise", steps: 5, image: "TWO_image.png"],

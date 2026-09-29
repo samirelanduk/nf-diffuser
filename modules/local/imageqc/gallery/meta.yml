@@ -42,9 +42,11 @@ output:
           description: |
             Groovy Map containing information about the gallery
             e.g. [ id:'imageqc_gallery' ].
-      - "${meta.id}.html":
+      - "*.html":
           type: file
-          description: HTML fragment with a grid of image thumbnails and their prompts.
+          description: |
+            HTML fragment with a grid of image thumbnails and their prompts,
+            named after ext.prefix (default imageqc_gallery).
           pattern: "*.html"
 
   versions_python:

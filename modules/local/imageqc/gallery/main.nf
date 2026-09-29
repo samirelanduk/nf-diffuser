@@ -9,7 +9,7 @@ process IMAGEQC_GALLERY {
     tuple val(meta), val(samples), path(images, stageAs: "images/*")
 
     output:
-    tuple val(meta), path("${meta.id}.html"), emit: html
+    tuple val(meta), path("*.html"), emit: html
     tuple val("${task.process}"), val('python'), eval('python3 --version | cut -d" " -f2'), topic: versions, emit: versions_python
     tuple val("${task.process}"), val('pillow'), eval('python3 -c "import PIL; print(PIL.__version__)"'), topic: versions, emit: versions_pillow
 
@@ -18,6 +18,7 @@ process IMAGEQC_GALLERY {
 
     script:
     def args = task.ext.args ?: ""
+    def prefix = task.ext.prefix ?: "imageqc_gallery"
     def samples_json = groovy.json.JsonOutput.toJson(samples.collect { sample -> sample + [image: "images/${sample.image}"] })
     """
     cat <<'END_OF_SAMPLES' > samples.json
@@ -26,7 +27,7 @@ process IMAGEQC_GALLERY {
 
     imageqc_gallery.py \\
       samples.json \\
-      --output ${meta.id}.html \\
+      --output ${prefix}.html \\
       $args
     """
 }
