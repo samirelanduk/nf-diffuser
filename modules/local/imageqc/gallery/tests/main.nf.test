@@ -1,0 +1,53 @@
+nextflow_process {
+
+    name "Test IMAGEQC_GALLERY"
+    script "../main.nf"
+    process "IMAGEQC_GALLERY"
+
+    tag "modules"
+    tag "modules_local"
+    tag "imageqc"
+    tag "imageqc/gallery"
+
+    def writeImage = { path, colour ->
+        def image = new java.awt.image.BufferedImage(64, 64, java.awt.image.BufferedImage.TYPE_INT_RGB)
+        (0..<64).each { x -> (0..<64).each { y -> image.setRGB(x, y, colour) } }
+        javax.imageio.ImageIO.write(image, "png", new File(path))
+    }
+
+    test("test_gallery") {
+
+        setup {
+            writeImage("$launchDir/ONE_image.png", 0x3366cc)
+            writeImage("$launchDir/TWO_image.png", 0)
+        }
+
+        when {
+            process {
+                """
+                input[0] = [
+                    [id: "imageqc_gallery"],
+                    [
+                        [id: "ONE", prompt: "A <b>bold</b> 'quoted' \\\$prompt", negative_prompt: "", steps: 20, cfg: 7.5, image: "ONE_image.png"],
+                        [id: "TWO", prompt: "Nothing", negative_prompt: "noise", steps: 5, image: "TWO_image.png"],
+                    ],
+                    [file("$launchDir/ONE_image.png"), file("$launchDir/TWO_image.png")],
+                ]
+                """
+            }
+        }
+
+        then {
+            def html = path(process.out.html[0][1]).text
+            assertAll(
+                { assert process.success },
+                { assert file(process.out.html[0][1]).name == "imageqc_gallery.html" },
+                { assert html.count("data:image/jpeg;base64,") == 2 },
+                { assert html.contains("A &lt;b&gt;bold&lt;/b&gt; &#x27;quoted&#x27; \$prompt") },
+                { assert html.contains("<b>Negative:</b> noise") },
+                { assert html.contains("Steps 20 · CFG 7.5") },
+                { assert snapshot(process.out.versions_python, process.out.versions_pillow).match("versions") },
+            )
+        }
+    }
+}
