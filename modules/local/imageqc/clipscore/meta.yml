@@ -1,0 +1,128 @@
+name: imageqc_clipscore
+description: Scores how well an image matches its prompt and negative prompt with any Hugging Face transformers CLIP model, as CLIPScore (100 × cosine similarity, floored at zero) or, with --logit-scale, the cosine similarity scaled by the model's learned logit scale.
+keywords:
+  - image
+  - qc
+  - clip
+  - clipscore
+  - prompt
+tools:
+  - transformers:
+      description: State-of-the-art machine learning models for PyTorch.
+      homepage: https://huggingface.co/docs/transformers
+      documentation: https://huggingface.co/docs/transformers
+      licence: ["Apache-2.0"]
+      args_id: "$args"
+  - torch:
+      description: Tensors and dynamic neural networks in Python.
+      homepage: https://pytorch.org/
+      documentation: https://pytorch.org/docs/
+      licence: ["BSD-3-Clause"]
+      args_id: ""
+  - python:
+      description: Python runtime used to execute the module's script.
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      licence: ["Python-2.0"]
+      identifier: biotools:python
+      args_id: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test', prompt:'A tree', negative_prompt:'' ].
+    - image:
+        type: file
+        description: Image to score.
+        pattern: "*.{jpg,jpeg,png}"
+  - model:
+      type: file
+      description: |
+        Files of a Hugging Face transformers CLIP model, staged together into
+        a model directory: config.json, the weights, and the processor and
+        tokenizer files.
+output:
+  scores:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ].
+      - "*.tsv":
+          type: file
+          description: |
+            Tab-separated file with a Sample column, a column for the prompt
+            score and, if there is a negative prompt, a column for the
+            negative prompt score. Columns are named after --name (default
+            clipscore), and the file after ext.prefix (default
+            <id>_clipscore).
+          pattern: "*.tsv"
+
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - python:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_torch:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - torch:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import torch; print(torch.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_transformers:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - transformers:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import transformers; print(transformers.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - python:
+          type: string
+          description: The tool name
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - torch:
+          type: string
+          description: The tool name
+      - 'python3 -c "import torch; print(torch.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - transformers:
+          type: string
+          description: The tool name
+      - 'python3 -c "import transformers; print(transformers.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"

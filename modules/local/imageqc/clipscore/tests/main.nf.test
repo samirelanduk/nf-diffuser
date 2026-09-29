@@ -1,0 +1,106 @@
+nextflow_process {
+
+    name "Test IMAGEQC_CLIPSCORE"
+    script "../main.nf"
+    process "IMAGEQC_CLIPSCORE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "imageqc"
+    tag "imageqc/clipscore"
+
+    def clip = "https://huggingface.co/hf-internal-testing/tiny-random-CLIPModel/resolve/703b075aa101387f504f075dca2e0c78c99ee420"
+    def clipFiles = ["config.json", "merges.txt", "preprocessor_config.json", "pytorch_model.bin", "special_tokens_map.json", "tokenizer.json", "tokenizer_config.json", "vocab.json"]
+    def model = clipFiles.collect { name -> "file(\"$clip/$name\")" }.join(", ")
+
+    def writeImage = { path ->
+        def image = new java.awt.image.BufferedImage(64, 64, java.awt.image.BufferedImage.TYPE_INT_RGB)
+        (0..<64).each { x -> (0..<64).each { y -> image.setRGB(x, y, (x * 4 << 16) | (y * 4 << 8) | 128) } }
+        javax.imageio.ImageIO.write(image, "png", new File(path))
+    }
+
+    def scores = { path ->
+        def (header, row) = new File(path.toString()).readLines()*.split("\t")
+        [header, row].transpose().collectEntries { key, value -> [key, key == "Sample" ? value : value as double] }
+    }
+
+    test("test_with_negative_prompt") {
+
+        setup {
+            writeImage("$launchDir/image.png")
+        }
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test", prompt: "A \\"quoted\\" \\\$prompt's text", negative_prompt: "blurry"], file("$launchDir/image.png")]
+                input[1] = [${model}]
+                """
+            }
+        }
+
+        then {
+            def values = scores(process.out.scores[0][1])
+            assertAll(
+                { assert process.success },
+                { assert process.out.scores[0][0].id == "test" },
+                { assert file(process.out.scores[0][1]).name == "test_clipscore.tsv" },
+                { assert values.keySet() == ["Sample", "clipscore", "clipscore_negative"] as Set },
+                { assert values.Sample == "test" },
+                { assert values.clipscore >= 0 },
+                { assert values.clipscore_negative >= 0 },
+                { assert snapshot(process.out.versions_python, process.out.versions_torch, process.out.versions_transformers).match("negative_versions") },
+            )
+        }
+    }
+
+    test("test_without_negative_prompt") {
+
+        setup {
+            writeImage("$launchDir/image.png")
+        }
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test", prompt: "A gradient", negative_prompt: ""], file("$launchDir/image.png")]
+                input[1] = [${model}]
+                """
+            }
+        }
+
+        then {
+            def values = scores(process.out.scores[0][1])
+            assertAll(
+                { assert process.success },
+                { assert values.keySet() == ["Sample", "clipscore"] as Set },
+            )
+        }
+    }
+
+    test("test_ext_name") {
+        config "./ext.config"
+
+        setup {
+            writeImage("$launchDir/image.png")
+        }
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test", prompt: "A gradient", negative_prompt: "blurry"], file("$launchDir/image.png")]
+                input[1] = [${model}]
+                """
+            }
+        }
+
+        then {
+            def values = scores(process.out.scores[0][1])
+            assertAll(
+                { assert process.success },
+                { assert file(process.out.scores[0][1]).name == "test_pickscore.tsv" },
+                { assert values.keySet() == ["Sample", "pickscore", "pickscore_negative"] as Set },
+            )
+        }
+    }
+}

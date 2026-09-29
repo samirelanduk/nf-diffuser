@@ -1,0 +1,32 @@
+{
+    "negative_versions": {
+        "content": [
+            [
+                [
+                    "IMAGEQC_CLIPSCORE",
+                    "python",
+                    "3.13.15"
+                ]
+            ],
+            [
+                [
+                    "IMAGEQC_CLIPSCORE",
+                    "torch",
+                    "2.13.0+cpu"
+                ]
+            ],
+            [
+                [
+                    "IMAGEQC_CLIPSCORE",
+                    "transformers",
+                    "5.15.0"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-30T18:06:36.45703",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}
