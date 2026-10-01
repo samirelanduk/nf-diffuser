@@ -18,6 +18,10 @@
 
 > Ireland SM. pydiffuse: a Python library for generating media with diffusion. https://github.com/samirelanduk/pydiffuse
 
+- [Transformers](https://doi.org/10.18653/v1/2020.emnlp-demos.6)
+
+> Wolf T, Debut L, Sanh V, Chaumond J, Delangue C, Moi A, Cistac P, Rault T, Louf R, Funtowicz M, Davison J, Shleifer S, von Platen P, Ma C, Jernite Y, Plu J, Xu C, Le Scao T, Gugger S, Drame M, Lhoest Q, Rush A. Transformers: State-of-the-Art Natural Language Processing. Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations. 2020 Oct:38-45. doi: 10.18653/v1/2020.emnlp-demos.6.
+
 ## Methods
 
 - [Latent Diffusion Models](https://doi.org/10.1109/CVPR52688.2022.01042)
@@ -35,6 +39,28 @@
 - [Karras noise schedule and samplers](https://proceedings.neurips.cc/paper_files/paper/2022/hash/a98846e9d9cc01cfb87eb694d946ce6b-Abstract-Conference.html)
 
 > Karras T, Aittala M, Aila T, Laine S. Elucidating the Design Space of Diffusion-Based Generative Models. Advances in Neural Information Processing Systems. 2022 Dec;35:26565-26577.
+
+## Image QC metrics
+
+- [CLIPScore](https://doi.org/10.18653/v1/2021.emnlp-main.595)
+
+> Hessel J, Holtzman A, Forbes M, Le Bras R, Choi Y. CLIPScore: A Reference-free Evaluation Metric for Image Captioning. Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing. 2021 Nov:7514-7528. doi: 10.18653/v1/2021.emnlp-main.595.
+
+- [PickScore](https://doi.org/10.48550/arXiv.2305.01569)
+
+> Kirstain Y, Polyak A, Singer U, Matiana S, Penna J, Levy O. Pick-a-Pic: An Open Dataset of User Preferences for Text-to-Image Generation. Advances in Neural Information Processing Systems. 2023;36. doi: 10.48550/arXiv.2305.01569.
+
+- [Colourfulness](https://doi.org/10.1117/12.477378)
+
+> Hasler D, Suesstrunk SE. Measuring colorfulness in natural images. Proceedings of SPIE, Human Vision and Electronic Imaging VIII. 2003 Jun;5007:87-95. doi: 10.1117/12.477378.
+
+- [Noise estimation](https://doi.org/10.1006/cviu.1996.0060)
+
+> Immerkær J. Fast Noise Variance Estimation. Computer Vision and Image Understanding. 1996 Sep;64(2):300-302. doi: 10.1006/cviu.1996.0060.
+
+- [Variance of the Laplacian](https://doi.org/10.1109/ICPR.2000.903548)
+
+> Pech-Pacheco JL, Cristóbal G, Chamorro-Martínez J, Fernández-Valdivia J. Diatom autofocusing in brightfield microscopy: a comparative study. Proceedings 15th International Conference on Pattern Recognition (ICPR-2000). 2000;3:314-317. doi: 10.1109/ICPR.2000.903548.
 
 ## Software packaging/containerisation tools
 

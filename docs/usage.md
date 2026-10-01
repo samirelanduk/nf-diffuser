@@ -122,6 +122,63 @@ nextflow run samirelanduk/nf-diffuser -c my_models.config --model_name MyModel .
 
 If the built-in catalogue conflicts with your own config, it can be disabled entirely with `--hf_ignore`.
 
+## Image QC
+
+Every generated image is assessed, and the results are shown in the Image QC section of the MultiQC report: a thumbnail gallery of every image with its prompt and settings, and a violin plot of each set of metrics across images. Every metric also appears as a column in the General Statistics table.
+
+By default, the pipeline calculates:
+
+| Metric               | Description                                                                                                                                                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Brightness           | Mean luminance (0 to 255).                                                                                                                                                                                                             |
+| Contrast             | Standard deviation of luminance. Near zero means a blank image.                                                                                                                                                                        |
+| Clipping             | Percentage of pixels that are pure black or pure white.                                                                                                                                                                                |
+| Sharpness            | Variance of the Laplacian. Low values mean a blurry image, but smooth subjects such as sky also score low.                                                                                                                             |
+| Noise                | Standard deviation of Gaussian noise, estimated with Immerkær's method. High values suggest too few steps.                                                                                                                             |
+| Colourfulness        | Hasler and Süsstrunk colourfulness. Below ~15 is close to greyscale.                                                                                                                                                                   |
+| Entropy              | Shannon entropy of the luminance histogram, in bits.                                                                                                                                                                                   |
+| CLIPScore            | [CLIPScore](https://doi.org/10.18653/v1/2021.emnlp-main.595) between the image and its prompt: 100 × the cosine similarity of their [CLIP ViT-L/14](https://huggingface.co/openai/clip-vit-large-patch14) embeddings, floored at zero. |
+| CLIPScore (negative) | The same score between the image and its negative prompt, if it has one. Lower is better.                                                                                                                                              |
+
+CLIPScore needs the CLIP ViT-L/14 model (1.7 GB), which is downloaded from Hugging Face at a fixed revision. Skip it with `--skip_clipscore`, or skip all image QC with `--skip_qc`.
+
+With `--run_pickscore`, images are also scored with [PickScore](https://huggingface.co/yuvalkirstain/PickScore_v1), a CLIP model fine-tuned on human preferences between generated images, which rates both prompt adherence and appeal. It is calculated for the prompt and negative prompt in the same way as CLIPScore. The model is 3.9 GB.
+
+All metrics run on CPU. CLIPScore and PickScore take a few seconds per image.
+
+Cells in the General Statistics table are highlighted when an image looks broken: red when contrast is below 2 (a blank image, e.g. from a NaN latent or a safety checker), and orange when over 25% of pixels are clipped to pure black or white.
+
+### QC models
+
+To use a local copy of the CLIPScore or PickScore model, e.g. when running offline, download every file in the Hugging Face repository listed in [`conf/hf.config`](../conf/hf.config) into a directory and pass it with `--clipscore_model` or `--pickscore_model`. Any Hugging Face transformers CLIP model can be used in the same way, e.g. a smaller ViT-B/32 for faster CLIPScore:
+
+```bash
+--clipscore_model '[path to directory]'
+```
+
+### Customising the report
+
+How the metrics are presented is defined in the pipeline's MultiQC config, [`assets/multiqc_config.yml`](../assets/multiqc_config.yml): the title, description, colour scale and order of each metric, and the thresholds for highlighting cells. To change them, copy that file, edit it, and pass it with `--multiqc_config`. For example, to also highlight blurry images:
+
+```yaml
+sharpness:
+  title: "Sharpness"
+  cond_formatting_rules:
+    warn: [{ lt: 50 }]
+  cond_formatting_colours:
+    - warn: "#f0ad4e"
+```
+
+The size of the gallery thumbnails, 256 pixels by default, can be changed with the `IMAGEQC_GALLERY` module's arguments in a custom config passed with `-c`:
+
+```groovy title="gallery.config"
+process {
+    withName: 'IMAGEQC_GALLERY' {
+        ext.args = '--thumbnail-size 128'
+    }
+}
+```
+
 ## Running the pipeline
 
 The typical command for running the pipeline is as follows:
@@ -211,6 +268,8 @@ If `-profile` is not specified, the pipeline will run locally and expect all sof
   - Includes links to test data so needs no other parameters
 - `docker`
   - A generic configuration profile to be used with [Docker](https://docker.com/)
+- `docker_arm64`
+  - On Apple Silicon, combine with `docker` to use the native arm64 MultiQC container (`-profile docker,docker_arm64`). Without this, MultiQC runs the amd64 image under Rosetta and skips static plot export.
 - `singularity`
   - A generic configuration profile to be used with [Singularity](https://sylabs.io/docs/)
 - `podman`
