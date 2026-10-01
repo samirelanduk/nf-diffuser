@@ -57,6 +57,12 @@ Update the snapshots with the following command:
 nf-test test --tag test --profile +docker --verbose --update-snapshots
 ```
 
+On Apple Silicon, add the `docker_arm64` profile so MultiQC uses the native arm64 container. The default amd64 image runs under Rosetta and skips static plot export, so the snapshots would not match CI:
+
+```bash
+nf-test test --tag test --profile +docker,+docker_arm64 --verbose --update-snapshots
+```
+
 When you create a pull request with changes, GitHub Actions will run automatic tests.
 Pull requests are typically reviewed when these tests are passing.
 

@@ -18,6 +18,20 @@
                     "pydiffuse": "0.4.1",
                     "python": "3.13.15"
                 },
+                "IMAGEQC_CLIPSCORE": {
+                    "python": "3.13.15",
+                    "torch": "2.13.0+cpu",
+                    "transformers": "5.15.0"
+                },
+                "IMAGEQC_GALLERY": {
+                    "pillow": "12.3.0",
+                    "python": "3.13.15"
+                },
+                "IMAGEQC_STATS": {
+                    "numpy": "2.5.2",
+                    "pillow": "12.3.0",
+                    "python": "3.13.15"
+                },
                 "NOISE_CREATE": {
                     "pydiffuse": "0.4.1",
                     "python": "3.13.15"
@@ -57,6 +71,12 @@
                 "denoise",
                 "denoise/SKY_denoised.pt",
                 "denoise/TREE_denoised.pt",
+                "imageqc",
+                "imageqc/SKY_clipscore.tsv",
+                "imageqc/SKY_imageqc_stats.tsv",
+                "imageqc/TREE_clipscore.tsv",
+                "imageqc/TREE_imageqc_stats.tsv",
+                "imageqc/imageqc_gallery.html",
                 "multiqc",
                 "multiqc/multiqc_data",
                 "multiqc/multiqc_data/llms-full.txt",
@@ -64,8 +84,21 @@
                 "multiqc/multiqc_data/multiqc.parquet",
                 "multiqc/multiqc_data/multiqc_citations.txt",
                 "multiqc/multiqc_data/multiqc_data.json",
+                "multiqc/multiqc_data/multiqc_general_stats.txt",
+                "multiqc/multiqc_data/multiqc_imageqc_clipscore_plot.txt",
+                "multiqc/multiqc_data/multiqc_imageqc_stats_plot.txt",
                 "multiqc/multiqc_data/multiqc_software_versions.txt",
                 "multiqc/multiqc_data/multiqc_sources.txt",
+                "multiqc/multiqc_plots",
+                "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/imageqc_clipscore_plot.pdf",
+                "multiqc/multiqc_plots/pdf/imageqc_stats_plot.pdf",
+                "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/imageqc_clipscore_plot.png",
+                "multiqc/multiqc_plots/png/imageqc_stats_plot.png",
+                "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/imageqc_clipscore_plot.svg",
+                "multiqc/multiqc_plots/svg/imageqc_stats_plot.svg",
                 "multiqc/multiqc_report.html",
                 "noise",
                 "noise/SKY_latent.pt",
@@ -96,7 +129,7 @@
                 "TREE_schedule.txt:md5,3f544e69d306c26bf19badc4473e32e6"
             ]
         ],
-        "timestamp": "2026-09-25T21:34:39.354993",
+        "timestamp": "2026-10-01T14:52:24.251542",
         "meta": {
             "nf-test": "0.9.4",
             "nextflow": "25.10.4"

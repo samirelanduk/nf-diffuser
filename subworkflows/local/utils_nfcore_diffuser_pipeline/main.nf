@@ -165,6 +165,12 @@ def validateInputParameters() {
     if (!params.model && !getModelAttribute('model')) {
         error("Model weights not specified with e.g. '--model_name SD1.5' or '--model model.safetensors'.")
     }
+    if (!params.skip_qc && !params.skip_clipscore && !getQcModelFiles('CLIPScore', params.clipscore_model)) {
+        error("CLIPScore model not found. Provide it with '--clipscore_model <directory>', or skip it with '--skip_clipscore'.")
+    }
+    if (!params.skip_qc && params.run_pickscore && !getQcModelFiles('PickScore', params.pickscore_model)) {
+        error("PickScore model not found. Provide it with '--pickscore_model <directory>'.")
+    }
 }
 
 //
@@ -199,6 +205,16 @@ def getModelAttribute(attribute) {
 }
 
 //
+// Get the files of an image QC model, from a local directory or the model catalogue
+//
+def getQcModelFiles(name, directory) {
+    if (directory) {
+        return file(directory, checkIfExists: true).listFiles().toList()
+    }
+    return (params.qc_models?.get(name)?.files ?: []).collect { url -> file(url) }
+}
+
+//
 // Exit pipeline if incorrect --model_name key provided
 //
 def modelExistsError() {
@@ -221,10 +237,13 @@ def toolCitationText() {
             "using CLIP text conditioning (Radford et al. 2021),",
             "classifier-free guidance (Ho & Salimans 2022)",
             "and noise schedules and samplers from Karras et al. (2022).",
+            params.skip_qc ? "" : "Image quality was assessed with the variance of the Laplacian (Pech-Pacheco et al. 2000), noise estimation (Immerkær 1996) and colourfulness (Hasler & Süsstrunk 2003)" + (params.skip_clipscore ? "." : ", and prompt adherence with CLIPScore (Hessel et al. 2021)."),
+            !params.skip_qc && params.run_pickscore ? "Human preference was estimated with PickScore (Kirstain et al. 2023)." : "",
             "Tools used in the workflow included:",
             "pydiffuse,",
+            params.skip_qc || (params.skip_clipscore && !params.run_pickscore) ? "" : "Transformers (Wolf et al. 2020),",
             "MultiQC (Ewels et al. 2016)."
-        ].join(' ').trim()
+        ].findAll { text -> text }.join(' ').trim()
 
     return citation_text
 }
@@ -235,8 +254,14 @@ def toolBibliographyText() {
             "<li>Radford, A., Kim, J. W., Hallacy, C., Ramesh, A., Goh, G., Agarwal, S., Sastry, G., Askell, A., Mishkin, P., Clark, J., Krueger, G., & Sutskever, I. (2021). Learning transferable visual models from natural language supervision. Proceedings of the 38th International Conference on Machine Learning, PMLR 139, 8748–8763.</li>",
             "<li>Ho, J., & Salimans, T. (2022). Classifier-free diffusion guidance. arXiv. doi: <a href=\"https://doi.org/10.48550/arXiv.2207.12598\">10.48550/arXiv.2207.12598</a></li>",
             "<li>Karras, T., Aittala, M., Aila, T., & Laine, S. (2022). Elucidating the design space of diffusion-based generative models. Advances in Neural Information Processing Systems, 35, 26565–26577.</li>",
+            params.skip_qc ? "" : "<li>Pech-Pacheco, J. L., Cristóbal, G., Chamorro-Martínez, J., & Fernández-Valdivia, J. (2000). Diatom autofocusing in brightfield microscopy: a comparative study. Proceedings 15th International Conference on Pattern Recognition, 3, 314–317. doi: <a href=\"https://doi.org/10.1109/ICPR.2000.903548\">10.1109/ICPR.2000.903548</a></li>",
+            params.skip_qc ? "" : "<li>Immerkær, J. (1996). Fast noise variance estimation. Computer Vision and Image Understanding, 64(2), 300–302. doi: <a href=\"https://doi.org/10.1006/cviu.1996.0060\">10.1006/cviu.1996.0060</a></li>",
+            params.skip_qc ? "" : "<li>Hasler, D., & Suesstrunk, S. E. (2003). Measuring colorfulness in natural images. Proceedings of SPIE, 5007, 87–95. doi: <a href=\"https://doi.org/10.1117/12.477378\">10.1117/12.477378</a></li>",
+            params.skip_qc || params.skip_clipscore ? "" : "<li>Hessel, J., Holtzman, A., Forbes, M., Le Bras, R., & Choi, Y. (2021). CLIPScore: A reference-free evaluation metric for image captioning. Proceedings of the 2021 Conference on Empirical Methods in Natural Language Processing, 7514–7528. doi: <a href=\"https://doi.org/10.18653/v1/2021.emnlp-main.595\">10.18653/v1/2021.emnlp-main.595</a></li>",
+            !params.skip_qc && params.run_pickscore ? "<li>Kirstain, Y., Polyak, A., Singer, U., Matiana, S., Penna, J., & Levy, O. (2023). Pick-a-Pic: An open dataset of user preferences for text-to-image generation. Advances in Neural Information Processing Systems, 36. doi: <a href=\"https://doi.org/10.48550/arXiv.2305.01569\">10.48550/arXiv.2305.01569</a></li>" : "",
+            params.skip_qc || (params.skip_clipscore && !params.run_pickscore) ? "" : "<li>Wolf, T., et al. (2020). Transformers: State-of-the-art natural language processing. Proceedings of the 2020 Conference on Empirical Methods in Natural Language Processing: System Demonstrations, 38–45. doi: <a href=\"https://doi.org/10.18653/v1/2020.emnlp-demos.6\">10.18653/v1/2020.emnlp-demos.6</a></li>",
             "<li>Ewels, P., Magnusson, M., Lundin, S., & Käller, M. (2016). MultiQC: summarize analysis results for multiple tools and samples in a single report. Bioinformatics, 32(19), 3047–3048. doi: <a href=\"https://doi.org/10.1093/bioinformatics/btw354\">10.1093/bioinformatics/btw354</a></li>"
-        ].join(' ').trim()
+        ].findAll { text -> text }.join(' ').trim()
 
     return reference_text
 }

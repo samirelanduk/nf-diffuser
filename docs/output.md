@@ -12,6 +12,7 @@ results/
 │   ├── negative_prompt/
 │   └── prompt/
 ├── denoise/
+├── imageqc/
 ├── multiqc/
 ├── noise/
 ├── pipeline_info/
@@ -26,6 +27,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - [Prompt encoding](#prompt-encoding) - CLIP conditioning for the prompt and negative prompt
 - [Denoising](#denoising) - Denoised latent produced by the UNet
 - [Image decoding](#image-decoding) - Final image decoded by the VAE
+- [Image QC](#image-qc) - Quality and prompt adherence metrics for each image
 - [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
 - [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
 
@@ -81,6 +83,21 @@ The UNet from the model removes noise from the starting latent step by step, fol
 
 The VAE from the model decodes the denoised latent into a full-resolution image. This is the main output of the pipeline.
 
+### Image QC
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `imageqc/`
+  - `<sample>_imageqc_stats.tsv`: brightness, contrast, clipping, sharpness, noise, colourfulness and entropy.
+  - `<sample>_clipscore.tsv`: CLIPScore for the prompt and, if there is one, the negative prompt.
+  - `<sample>_pickscore.tsv`: PickScore for the prompt and negative prompt, if `--run_pickscore` is used.
+  - `imageqc_gallery.html`: thumbnails of every image with its prompt and settings.
+
+</details>
+
+Each image is scored with basic image statistics and CLIPScore, and optionally PickScore. The results are shown in the Image QC section of the MultiQC report, and every metric is added to the General Statistics table, where values suggesting a broken image are highlighted. The combined values for all images are in `multiqc/multiqc_data/multiqc_general_stats.txt`. See the [usage documentation](usage.md#image-qc) for a description of each metric.
+
 ### MultiQC
 
 <details markdown="1">
@@ -93,7 +110,7 @@ The VAE from the model decodes the denoised latent into a full-resolution image.
 
 </details>
 
-[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. Most of the pipeline QC results are visualised in the report and further statistics are available in the report data directory.
+[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. The [image QC](#image-qc) results are visualised in the report and further statistics are available in the report data directory.
 
 The report lists the software versions used for each step of the pipeline, for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
 

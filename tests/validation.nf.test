@@ -597,5 +597,63 @@ nextflow_pipeline {
         }
     }
 
+    test("Fails when there is no CLIPScore model") {
 
+        when {
+            params {
+                outdir    = "$outputDir"
+                input     = "${projectDir}/tests/data/samplesheet.csv"
+                model     = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+                qc_models = [CLIPScore: [files: []]]
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains("CLIPScore model not found. Provide it with '--clipscore_model <directory>', or skip it with '--skip_clipscore'.") } }
+            )
+        }
+    }
+
+    test("Fails when there is no PickScore model") {
+
+        when {
+            params {
+                outdir         = "$outputDir"
+                input          = "${projectDir}/tests/data/samplesheet.csv"
+                model          = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+                qc_models      = [PickScore: [files: []]]
+                skip_clipscore = true
+                run_pickscore  = true
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains("PickScore model not found. Provide it with '--pickscore_model <directory>'.") } }
+            )
+        }
+    }
+
+    test("Fails when --clipscore_model does not exist") {
+
+        when {
+            params {
+                outdir          = "$outputDir"
+                input           = "${projectDir}/tests/data/samplesheet.csv"
+                model           = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+                clipscore_model = "$launchDir/missing"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.failed },
+                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert workflow.stderr.any { it.contains("--clipscore_model") } }
+            )
+        }
+    }
 }

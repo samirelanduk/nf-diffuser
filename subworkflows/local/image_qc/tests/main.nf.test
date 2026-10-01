@@ -1,0 +1,113 @@
+nextflow_workflow {
+
+    name "Test Workflow IMAGE_QC"
+    script "../main.nf"
+    workflow "IMAGE_QC"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/image_qc"
+    tag "imageqc/stats"
+    tag "imageqc/clipscore"
+    tag "imageqc/gallery"
+
+    def clip = "https://huggingface.co/hf-internal-testing/tiny-random-CLIPModel/resolve/703b075aa101387f504f075dca2e0c78c99ee420"
+    def clipFiles = ["config.json", "merges.txt", "preprocessor_config.json", "pytorch_model.bin", "special_tokens_map.json", "tokenizer.json", "tokenizer_config.json", "vocab.json"]
+    def model = clipFiles.collect { name -> "file(\"$clip/$name\")" }.join(", ")
+
+    def writeImage = { path, colour ->
+        def image = new java.awt.image.BufferedImage(64, 64, java.awt.image.BufferedImage.TYPE_INT_RGB)
+        (0..<64).each { x -> (0..<64).each { y -> image.setRGB(x, y, colour(x, y)) } }
+        javax.imageio.ImageIO.write(image, "png", new File(path))
+    }
+
+    def images = """
+        channel.of(
+            [[id: "GRADIENT", prompt: "A gradient", negative_prompt: "noise"], file("\$launchDir/gradient.png")],
+            [[id: "BLANK", prompt: "A black square", negative_prompt: ""], file("\$launchDir/blank.png")],
+        )
+    """
+
+    def fileNames = { files -> files.collect { path -> file(path).name }.sort() }
+
+    test("test_clipscore") {
+
+        setup {
+            writeImage("$launchDir/gradient.png", { x, y -> (x * 4 << 16) | (y * 4 << 8) | 128 })
+            writeImage("$launchDir/blank.png", { x, y -> 0 })
+        }
+
+        when {
+            workflow {
+                """
+                input[0] = ${images}
+                input[1] = [${model}]
+                input[2] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert fileNames(workflow.out.multiqc_files) == [
+                    "BLANK_clipscore.tsv", "BLANK_imageqc_stats.tsv",
+                    "GRADIENT_clipscore.tsv", "GRADIENT_imageqc_stats.tsv",
+                    "imageqc_gallery.html",
+                ] },
+            )
+        }
+    }
+
+    test("test_clipscore_and_pickscore") {
+        config "../../../../conf/modules/imageqc.config"
+
+        setup {
+            writeImage("$launchDir/gradient.png", { x, y -> (x * 4 << 16) | (y * 4 << 8) | 128 })
+            writeImage("$launchDir/blank.png", { x, y -> 0 })
+        }
+
+        when {
+            workflow {
+                """
+                input[0] = ${images}
+                input[1] = [${model}]
+                input[2] = [${model}]
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert fileNames(workflow.out.multiqc_files).count { name -> name.endsWith("_pickscore.tsv") } == 2 },
+                { assert fileNames(workflow.out.multiqc_files).count { name -> name.endsWith("_clipscore.tsv") } == 2 },
+            )
+        }
+    }
+
+    test("test_no_clip_models") {
+
+        setup {
+            writeImage("$launchDir/gradient.png", { x, y -> (x * 4 << 16) | (y * 4 << 8) | 128 })
+            writeImage("$launchDir/blank.png", { x, y -> 0 })
+        }
+
+        when {
+            workflow {
+                """
+                input[0] = ${images}
+                input[1] = []
+                input[2] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert fileNames(workflow.out.multiqc_files) == ["BLANK_imageqc_stats.tsv", "GRADIENT_imageqc_stats.tsv", "imageqc_gallery.html"] },
+            )
+        }
+    }
+}

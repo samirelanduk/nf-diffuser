@@ -1,0 +1,98 @@
+name: imageqc_gallery
+description: Builds an HTML gallery of thumbnails of images with their prompts and settings, for use as MultiQC custom content.
+keywords:
+  - image
+  - qc
+  - gallery
+  - multiqc
+tools:
+  - pillow:
+      description: Python imaging library.
+      homepage: https://python-pillow.org/
+      documentation: https://pillow.readthedocs.io/
+      licence: ["MIT-CMU"]
+      args_id: "$args"
+  - python:
+      description: Python runtime used to execute the module's script.
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      licence: ["Python-2.0"]
+      identifier: biotools:python
+      args_id: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing information about the gallery
+          e.g. [ id:'imageqc_gallery' ].
+    - samples:
+        type: list
+        description: |
+          List of sample meta maps, each with an image key naming its image
+          file, and optionally prompt, negative_prompt, width, height, steps,
+          cfg, sampler and schedule.
+    - images:
+        type: file
+        description: Images to show in the gallery.
+        pattern: "*.{jpg,jpeg,png}"
+output:
+  html:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing information about the gallery
+            e.g. [ id:'imageqc_gallery' ].
+      - "*.html":
+          type: file
+          description: |
+            HTML fragment with a grid of image thumbnails and their prompts,
+            named after ext.prefix (default imageqc_gallery).
+          pattern: "*.html"
+
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - python:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_pillow:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - pillow:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import PIL; print(PIL.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - python:
+          type: string
+          description: The tool name
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - pillow:
+          type: string
+          description: The tool name
+      - 'python3 -c "import PIL; print(PIL.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"

@@ -90,6 +90,48 @@
                 }
             }
         },
+        "image_qc_options": {
+            "title": "Image QC options",
+            "type": "object",
+            "fa_icon": "fas fa-check-double",
+            "description": "Options for assessing the quality and prompt adherence of each generated image.",
+            "properties": {
+                "skip_qc": {
+                    "type": "boolean",
+                    "description": "Skip all image QC.",
+                    "fa_icon": "fas fa-fast-forward",
+                    "help_text": "Basic image statistics and CLIPScore are calculated by default, and reported in MultiQC along with a thumbnail gallery."
+                },
+                "skip_clipscore": {
+                    "type": "boolean",
+                    "description": "Skip CLIPScore prompt adherence scoring.",
+                    "fa_icon": "fas fa-fast-forward",
+                    "help_text": "CLIPScore requires the ~1.7 GB CLIP ViT-L/14 model, downloaded from Hugging Face at a fixed revision."
+                },
+                "run_pickscore": {
+                    "type": "boolean",
+                    "description": "Score each image with PickScore, a CLIP model fine-tuned on human preferences.",
+                    "fa_icon": "fas fa-thumbs-up",
+                    "help_text": "PickScore requires a ~3.9 GB model, downloaded from Hugging Face at a fixed revision."
+                },
+                "clipscore_model": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "exists": true,
+                    "description": "Directory containing a Hugging Face transformers CLIP model to use for CLIPScore.",
+                    "fa_icon": "fas fa-folder",
+                    "help_text": "Overrides the default of openai/clip-vit-large-patch14. The directory must contain the model weights and config, and the processor and tokenizer files."
+                },
+                "pickscore_model": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "exists": true,
+                    "description": "Directory containing a Hugging Face transformers CLIP model to use for PickScore.",
+                    "fa_icon": "fas fa-folder",
+                    "help_text": "Overrides the default of yuvalkirstain/PickScore_v1. The directory must contain the model weights and config, and the processor and tokenizer files."
+                }
+            }
+        },
         "institutional_config_options": {
             "title": "Institutional config options",
             "type": "object",
@@ -247,6 +289,9 @@
         },
         {
             "$ref": "#/$defs/model_options"
+        },
+        {
+            "$ref": "#/$defs/image_qc_options"
         },
         {
             "$ref": "#/$defs/institutional_config_options"

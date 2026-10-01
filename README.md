@@ -21,7 +21,8 @@
 3. Encode the prompt and negative prompt with CLIP: tokenize, embed and encode ([`pydiffuse clip`](https://github.com/samirelanduk/pydiffuse))
 4. Denoise the latent with the UNet using classifier-free guidance ([`pydiffuse sample denoise`](https://github.com/samirelanduk/pydiffuse))
 5. Decode the denoised latent into an image with the VAE ([`pydiffuse vae decode`](https://github.com/samirelanduk/pydiffuse))
-6. Report software versions ([`MultiQC`](http://multiqc.info/))
+6. Assess each image's quality and prompt adherence: basic image statistics, [CLIPScore](https://doi.org/10.18653/v1/2021.emnlp-main.595), and optionally [PickScore](https://huggingface.co/yuvalkirstain/PickScore_v1)
+7. Present QC metrics, a thumbnail gallery and software versions ([`MultiQC`](http://multiqc.info/))
 
 ## Usage
 
