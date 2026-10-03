@@ -1,0 +1,98 @@
+%%metro title: samirelanduk/nf-diffuser
+%%metro style: dark
+%%metro diamond_style: symmetric
+%%metro file: samplesheet_in | CSV
+%%metro file: model_in | SAFETENSORS
+%%metro file: image_out | JPEG
+%%metro file: report_final | HTML
+%%metro off_track: model_in
+%%metro line: prompt | Prompt conditioning | #2db572
+%%metro line: negative | Negative prompt conditioning | #e63946
+%%metro line: latent | Latent noise | #0570b0
+%%metro line: schedule | Noise schedule | #f5c542
+%%metro line: pickscore | PickScore (optional, --run_pickscore) | #9b59b6 | dashed
+%%metro legend: bl
+
+%% Process mappings for live-progress mode (nf-metro serve / nf-metro check-mapping).
+%%metro process_scope: NF_DIFFUSER:DIFFUSER
+
+%% Prompt encoding
+%%metro process: clip_tokenize     | ENCODE_PROMPT:CLIP_TOKENIZE
+%%metro process: clip_tokenize     | ENCODE_NEGATIVE_PROMPT:CLIP_TOKENIZE
+%%metro process: clip_embed        | ENCODE_PROMPT:CLIP_EMBED
+%%metro process: clip_embed        | ENCODE_NEGATIVE_PROMPT:CLIP_EMBED
+%%metro process: clip_encode       | ENCODE_PROMPT:CLIP_ENCODE
+%%metro process: clip_encode       | ENCODE_NEGATIVE_PROMPT:CLIP_ENCODE
+
+%% Latent initialisation
+%%metro process: noise_create      | NOISE_CREATE
+%%metro process: noise_schedule    | NOISE_SCHEDULE
+
+%% Diffusion
+%%metro process: denoise           | DENOISE
+%%metro process: vae_decode        | VAE_DECODE
+
+%% Image QC & reporting
+%%metro process: qc_stats          | IMAGE_QC:IMAGEQC_STATS
+%%metro process: qc_clipscore      | IMAGE_QC:IMAGEQC_CLIPSCORE
+%%metro process: qc_pickscore      | IMAGE_QC:IMAGEQC_PICKSCORE
+%%metro process: qc_gallery        | IMAGE_QC:IMAGEQC_GALLERY
+%%metro process: multiqc           | MULTIQC
+
+graph LR
+    subgraph inputs [Inputs]
+        samplesheet_in[ ]
+        model_in[ ]
+        parse[Validate samplesheet]
+
+        samplesheet_in -->|prompt,negative,latent,schedule| parse
+        model_in -->|prompt,negative,latent| parse
+    end
+
+    subgraph encoding [Prompt encoding]
+        clip_tokenize[CLIP Tokenize]
+        clip_embed[CLIP Embed]
+        clip_encode[CLIP Encode]
+
+        clip_tokenize -->|prompt,negative| clip_embed
+        clip_embed -->|prompt,negative| clip_encode
+    end
+
+    subgraph latent_init [Latent initialisation]
+        noise_create[Create noise]
+        noise_schedule[Noise schedule]
+    end
+
+    subgraph diffusion [Diffusion]
+        denoise[UNet denoise]
+        vae_decode[VAE decode]
+        image_out[ ]
+
+        denoise -->|prompt,negative,latent,schedule| vae_decode
+        vae_decode -->|prompt,negative,latent,schedule| image_out
+    end
+
+    subgraph qc_report [Image QC & reporting]
+        qc_stats[Image stats]
+        qc_clipscore[CLIPScore]
+        qc_pickscore[PickScore]
+        qc_gallery[Gallery]
+        multiqc[MultiQC]
+        report_final[ ]
+
+        qc_stats -->|prompt,negative,latent,schedule| qc_clipscore
+        qc_clipscore -->|prompt,negative,latent,schedule| qc_gallery
+        qc_pickscore -->|pickscore| qc_gallery
+        qc_gallery -->|prompt,negative,latent,schedule,pickscore| multiqc
+        multiqc -->|prompt,negative,latent,schedule,pickscore| report_final
+    end
+
+    %% Inter-section edges
+    parse -->|prompt,negative| clip_tokenize
+    parse -->|latent| noise_create
+    parse -->|schedule| noise_schedule
+    clip_encode -->|prompt,negative| denoise
+    noise_create -->|latent| denoise
+    noise_schedule -->|schedule| denoise
+    vae_decode -->|prompt,negative,latent,schedule| qc_stats
+    vae_decode -->|pickscore| qc_pickscore
