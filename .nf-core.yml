@@ -19,7 +19,7 @@ lint:
     - report_comment
   nf_test_content:
     - tests/validation.nf.test
-  container_configs: False
+  container_configs: false
   files_exist:
     - CODE_OF_CONDUCT.md
     - assets/nf-core-nf-diffuser_logo_light.png
@@ -36,7 +36,7 @@ template:
   name: nf-diffuser
   description: Generates media using diffusion techniques.
   author: Sam M. Ireland
-  version: 1.0.0dev
+  version: 1.0.0
   force: true
   outdir: ./nf-diffuser
   skip_features:
