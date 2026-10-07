@@ -1,0 +1,84 @@
+nextflow_process {
+
+    name "Test IMAGEQC_STATS"
+    script "../main.nf"
+    process "IMAGEQC_STATS"
+
+    tag "modules"
+    tag "modules_local"
+    tag "imageqc"
+    tag "imageqc/stats"
+
+    def writeImage = { path, colour ->
+        def image = new java.awt.image.BufferedImage(64, 64, java.awt.image.BufferedImage.TYPE_INT_RGB)
+        (0..<64).each { x -> (0..<64).each { y -> image.setRGB(x, y, colour(x, y)) } }
+        javax.imageio.ImageIO.write(image, "png", new File(path))
+    }
+
+    def metrics = { path ->
+        def (header, row) = new File(path.toString()).readLines()*.split("\t")
+        [header, row].transpose().collectEntries { key, value -> [key, key == "Sample" ? value : value as double] }
+    }
+
+    test("test_gradient") {
+
+        setup {
+            writeImage("$launchDir/gradient.png", { x, y -> (x * 4 << 16) | (y * 4 << 8) | 128 })
+        }
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], file("$launchDir/gradient.png")]
+                """
+            }
+        }
+
+        then {
+            def values = metrics(process.out.stats[0][1])
+            assertAll(
+                { assert process.success },
+                { assert process.out.stats[0][0] == [id: "test"] },
+                { assert file(process.out.stats[0][1]).name == "test_imageqc_stats.tsv" },
+                { assert values.Sample == "test" },
+                { assert Math.abs(values.brightness - 126.228) < 0.001 },
+                { assert Math.abs(values.contrast - 48.68) < 0.01 },
+                { assert values.sharpness < 1e-6 },
+                { assert values.noise < 1e-6 },
+                { assert values.shadow_clipping == 0 },
+                { assert values.highlight_clipping == 0 },
+                { assert values.colourfulness > 0 },
+                { assert values.entropy > 0 },
+                { assert snapshot(process.out.versions_python, process.out.versions_numpy, process.out.versions_pillow).match("gradient_versions") },
+            )
+        }
+    }
+
+    test("test_blank") {
+
+        setup {
+            writeImage("$launchDir/blank.png", { x, y -> 0 })
+        }
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], file("$launchDir/blank.png")]
+                """
+            }
+        }
+
+        then {
+            def values = metrics(process.out.stats[0][1])
+            assertAll(
+                { assert process.success },
+                { assert values.brightness == 0 },
+                { assert values.contrast == 0 },
+                { assert values.shadow_clipping == 100 },
+                { assert values.sharpness == 0 },
+                { assert values.colourfulness == 0 },
+                { assert values.entropy == 0 },
+            )
+        }
+    }
+}

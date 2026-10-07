@@ -1,0 +1,134 @@
+{
+    "basic_versions_python": {
+        "content": [
+            [
+                [
+                    "CLIP_TOKENIZE",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-01T23:54:13.31804",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "custom_tokenizer_versions_python": {
+        "content": [
+            [
+                [
+                    "CLIP_TOKENIZE",
+                    "python",
+                    "3.13.15"
+                ]
+            ]
+        ],
+        "timestamp": "2026-09-01T23:54:18.424172",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "basic_tokens": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_tokens.json:md5,ecef4bf1ebd09be9b2e7a66a7754bb1b"
+                ]
+            ]
+        ],
+        "timestamp": "2026-08-26T14:38:11.834166",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "custom_tokenizer_tokens": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_tokens.json:md5,cfa4f1e24125d00bdca94cca78f98cc9"
+                ]
+            ]
+        ],
+        "timestamp": "2026-08-26T14:47:12.754762",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "custom_tokenizer_mappings": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_mappings.json:md5,2cfa1bbf5981a58524827a47629fed1d"
+                ]
+            ]
+        ],
+        "timestamp": "2026-08-26T14:47:12.761644",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "basic_versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "CLIP_TOKENIZE",
+                    "pydiffuse",
+                    "0.4.1"
+                ]
+            ]
+        ],
+        "timestamp": "2026-08-26T14:38:11.849014",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "basic_mappings": {
+        "content": [
+            [
+                [
+                    {
+                        "id": "test"
+                    },
+                    "test_mappings.json:md5,32b683394905e9037c6b30ad561f1e0b"
+                ]
+            ]
+        ],
+        "timestamp": "2026-08-26T14:38:11.841752",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    },
+    "custom_tokenizer_versions_pydiffuse": {
+        "content": [
+            [
+                [
+                    "CLIP_TOKENIZE",
+                    "pydiffuse",
+                    "0.4.1"
+                ]
+            ]
+        ],
+        "timestamp": "2026-08-26T14:47:12.775526",
+        "meta": {
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
+    }
+}

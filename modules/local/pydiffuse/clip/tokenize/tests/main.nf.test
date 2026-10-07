@@ -1,0 +1,69 @@
+nextflow_process {
+
+    name "Test CLIP_TOKENIZE"
+    script "../main.nf"
+    process "CLIP_TOKENIZE"
+
+    tag "modules"
+    tag "modules_local"
+    tag "pydiffuse"
+    tag "pydiffuse/clip/tokenize"
+
+
+    test("test_basic_prompt") {
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], "a photo of a lighthouse"]
+                input[1] = []
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.tokens).match("basic_tokens") },
+                { assert snapshot(process.out.mappings).match("basic_mappings") },
+                { assert snapshot(process.out.versions_python).match("basic_versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("basic_versions_pydiffuse") },
+            )
+        }
+    }
+
+    test("test_custom_tokenizer") {
+
+        setup {
+            // A minimal CLIP tokenizer, whose vocabulary deliberately does not
+            // contain the words of the prompt.
+            def tokenizer = new File("$launchDir/custom_tokenizer")
+            tokenizer.mkdirs()
+            new File(tokenizer, "vocab.json").text =
+                '{"<|startoftext|>": 0, "<|endoftext|>": 1, "cat</w>": 2, "dog</w>": 3}'
+            new File(tokenizer, "merges.txt").text = "#version: 0.2\n"
+        }
+
+        when {
+            process {
+                """
+                input[0] = [[id: "test"], "a photo of a lighthouse"]
+                input[1] = file("$launchDir/custom_tokenizer")
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert snapshot(process.out.tokens).match("custom_tokenizer_tokens") },
+                { assert snapshot(process.out.mappings).match("custom_tokenizer_mappings") },
+                // The prompt was tokenized with the supplied vocabulary, rather
+                // than the one bundled with pydiffuse.
+                { assert !path(process.out.mappings[0][1]).text.contains('lighthouse</w>') },
+                { assert snapshot(process.out.versions_python).match("custom_tokenizer_versions_python") },
+                { assert snapshot(process.out.versions_pydiffuse).match("custom_tokenizer_versions_pydiffuse") },
+            )
+        }
+    }
+}

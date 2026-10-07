@@ -1,0 +1,2 @@
+clip/tokenize:
+  - modules/local/pydiffuse/clip/tokenize/**

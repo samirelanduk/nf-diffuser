@@ -1,0 +1,71 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://raw.githubusercontent.com/samirelanduk/nf-diffuser/master/assets/schema_input.json",
+    "title": "samirelanduk/nf-diffuser pipeline - params.input schema",
+    "description": "Schema for the file provided with params.input",
+    "type": "array",
+    "uniqueEntries": ["sample"],
+    "items": {
+        "type": "object",
+        "properties": {
+            "sample": {
+                "type": "string",
+                "pattern": "^\\S+$",
+                "errorMessage": "Sample name must be provided and cannot contain spaces",
+                "meta": ["id"]
+            },
+            "prompt": {
+                "type": "string",
+                "errorMessage": "Prompt must be provided",
+                "meta": ["prompt"]
+            },
+            "negative_prompt": {
+                "type": "string",
+                "default": "",
+                "errorMessage": "Negative prompt must be a string",
+                "meta": ["negative_prompt"]
+            },
+            "width": {
+                "type": "integer",
+                "default": 512,
+                "errorMessage": "Width must be an integer",
+                "meta": ["width"]
+            },
+            "height": {
+                "type": "integer",
+                "default": 512,
+                "errorMessage": "Height must be an integer",
+                "meta": ["height"]
+            },
+            "steps": {
+                "type": "integer",
+                "default": 20,
+                "minimum": 1,
+                "errorMessage": "Steps must be an integer greater than or equal to 1",
+                "meta": ["steps"]
+            },
+            "cfg": {
+                "type": "number",
+                "default": 7.5,
+                "minimum": 1,
+                "errorMessage": "CFG must be a number greater than or equal to 1",
+                "meta": ["cfg"]
+            },
+            "sampler": {
+                "type": "string",
+                "default": "euler",
+                "enum": ["euler", "heun"],
+                "errorMessage": "Sampler must be a string and must be one of the following: euler, heun",
+                "meta": ["sampler"]
+            },
+            "schedule": {
+                "type": "string",
+                "default": "karras",
+                "enum": ["karras", "exponential"],
+                "errorMessage": "Schedule must be a string and must be one of the following: karras, exponential",
+                "meta": ["schedule"]
+            }
+        },
+        "required": ["sample", "prompt"]
+    }
+}

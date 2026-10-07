@@ -1,0 +1,2 @@
+noise/create:
+  - modules/local/pydiffuse/noise/create/**

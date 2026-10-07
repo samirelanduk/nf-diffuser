@@ -1,0 +1,54 @@
+nextflow_workflow {
+
+    name "Test Workflow ENCODE_PROMPT"
+    script "../main.nf"
+    workflow "ENCODE_PROMPT"
+
+    tag "subworkflows"
+    tag "subworkflows_local"
+    tag "subworkflows/encode_prompt"
+    tag "pydiffuse/clip/tokenize"
+    tag "pydiffuse/clip/embed"
+    tag "pydiffuse/clip/encode"
+
+    def valueAt = { path, index ->
+        def zip = new java.util.zip.ZipFile(path)
+        def entry = zip.entries().find { it.name.endsWith("/data/0") }
+        def stream = zip.getInputStream(entry)
+        stream.skipNBytes(index * 4)
+        def bytes = stream.readNBytes(4)
+        zip.close()
+        java.nio.ByteBuffer.wrap(bytes).order(java.nio.ByteOrder.LITTLE_ENDIAN).getFloat()
+    }
+
+    test("test_basic_input") {
+
+        setup {
+            def tokenizer = new File("$launchDir/tokenizer")
+            tokenizer.mkdirs()
+            new File(tokenizer, "vocab.json").text =
+                '{"<|startoftext|>": 0, "<|endoftext|>": 1, "c": 2, "a": 3, "t</w>": 4, "d": 5, "o": 6, "g</w>": 7}'
+            new File(tokenizer, "merges.txt").text = "#version: 0.2\n"
+        }
+
+        when {
+            workflow {
+                """
+                input[0] = channel.of([[id: "test"], "cat dog"])
+                input[1] = channel.value(file("$launchDir/tokenizer"))
+                input[2] = channel.value(file("https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.0/tests/cli/models/clip_embedding_model.safetensors"))
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.out.conditioning.size() == 1 },
+                { assert workflow.out.conditioning[0][0] == [id: "test"] },
+                { assert file(workflow.out.conditioning[0][1]).name == "test_conditioning.pt" },
+                { assert Math.abs(valueAt(workflow.out.conditioning[0][1], 3 * 12) - 1.529) < 0.01 },
+            )
+        }
+    }
+}

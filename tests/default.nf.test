@@ -1,0 +1,159 @@
+nextflow_pipeline {
+
+    name "Test pipeline"
+    script "../main.nf"
+    tag "pipeline"
+
+    test("-profile test") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input = "${projectDir}/tests/data/samplesheet.csv"
+                model = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            // stable_path: All files + folders in ${params.outdir}/ with a stable path (including file name)
+            def stable_path = getAllFilesFromDir(params.outdir, relative: true, includeDir: true, ignore: ['pipeline_info/*.{html,json,txt}'])
+            // stable_content: All files in ${params.outdir}/ with stable content
+            def stable_content = getAllFilesFromDir(params.outdir, ignoreFile: 'tests/.nftignore')
+            def samples = new File("${projectDir}/tests/data/samplesheet.csv").readLines().drop(1).collect { line ->
+                line.split(',')[0]
+            }
+            def expected_sizes = [
+                TREE: [width: 296, height: 96],
+                SKY:  [width: 512, height: 512],
+            ]
+            assert workflow.success
+            assertAll(
+                { samples.each { id ->
+                    assert path("$outputDir/noise/${id}_latent.pt").exists()
+                    assert path("$outputDir/noise/${id}_schedule.txt").exists()
+
+                    ['prompt', 'negative_prompt'].each { dir ->
+                        assert path("$outputDir/clip/${dir}/${id}_tokens.json").exists()
+                        assert path("$outputDir/clip/${dir}/${id}_mappings.json").exists()
+                        assert path("$outputDir/clip/${dir}/${id}_embedding.pt").exists()
+                        assert path("$outputDir/clip/${dir}/${id}_conditioning.pt").exists()
+                    }
+
+                    assert path("$outputDir/denoise/${id}_denoised.pt").exists()
+
+                    assert path("$outputDir/vae/${id}_image.jpg").exists()
+                    def image = javax.imageio.ImageIO.read(new File("$outputDir/vae/${id}_image.jpg"))
+                    assert image.width == expected_sizes[id].width
+                    assert image.height == expected_sizes[id].height
+
+                    assert path("$outputDir/imageqc/${id}_imageqc_stats.tsv").exists()
+                    assert path("$outputDir/imageqc/${id}_clipscore.tsv").exists()
+                } },
+                { assert path("$outputDir/imageqc/imageqc_gallery.html").exists() },
+                { ['imageqc_stats', 'imageqc_clipscore'].each { section ->
+                    assert path("$outputDir/multiqc/multiqc_data/multiqc_${section}_plot.txt").readLines().size() == samples.size() + 1
+                } },
+                { assert path("$outputDir/multiqc/multiqc_data/multiqc_general_stats.txt").readLines()[0].split("\t").toList().containsAll(["contrast", "clipscore"]) },
+                { assert path("$outputDir/multiqc/multiqc_report.html").text.contains("imageqc_gallery") },
+                { assert snapshot(
+                    // pipeline versions.yml file for multiqc from which Nextflow version is removed because we test pipelines on multiple Nextflow versions
+                    removeNextflowVersion("$outputDir/pipeline_info/nf-diffuser_software_mqc_versions.yml"),
+                    // All stable path name, with a relative path
+                    stable_path,
+                    // All files with stable contents
+                    stable_content
+                ).match() }
+            )
+        }
+    }
+
+    test("--prompt") {
+
+        when {
+            params {
+                outdir = "$outputDir"
+                input  = null
+                prompt = "A photo of a tree, at dusk"
+                model  = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+            }
+        }
+
+        then {
+            def image = javax.imageio.ImageIO.read(new File("$outputDir/vae/prompt_image.jpg"))
+            assertAll(
+                { assert workflow.success },
+                { assert image.width == 512 },
+                { assert image.height == 512 },
+                { assert path("$outputDir/clip/prompt/prompt_mappings.json").text.contains("dusk</w>") },
+                { assert path("$outputDir/imageqc/prompt_clipscore.tsv").exists() }
+            )
+        }
+    }
+
+    test("--skip_qc") {
+
+        when {
+            params {
+                outdir  = "$outputDir"
+                input   = "${projectDir}/tests/data/samplesheet.csv"
+                model   = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+                skip_qc = true
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert path("$outputDir/vae/TREE_image.jpg").exists() },
+                { assert !path("$outputDir/imageqc").exists() },
+                { assert !path("$outputDir/multiqc/multiqc_report.html").text.contains("imageqc_gallery") }
+            )
+        }
+    }
+
+    test("--run_pickscore") {
+
+        when {
+            params {
+                outdir        = "$outputDir"
+                input         = "${projectDir}/tests/data/samplesheet.csv"
+                model         = "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+                run_pickscore = true
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert path("$outputDir/imageqc/TREE_pickscore.tsv").exists() },
+                { assert path("$outputDir/multiqc/multiqc_data/multiqc_imageqc_pickscore_plot.txt").exists() },
+                { assert path("$outputDir/multiqc/multiqc_data/multiqc_general_stats.txt").readLines()[0].contains("pickscore") }
+            )
+        }
+    }
+
+    test("--model_name") {
+
+        when {
+            params {
+                outdir     = "$outputDir"
+                input      = "${projectDir}/tests/data/samplesheet.csv"
+                model      = null
+                model_name = "tiny"
+                models     = [
+                    tiny: [
+                        model: "https://raw.githubusercontent.com/samirelanduk/pydiffuse/v0.4.1/tests/cli/models/sd15.safetensors"
+                    ]
+                ]
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert path("$outputDir/vae/TREE_image.jpg").exists() },
+                { assert path("$outputDir/vae/SKY_image.jpg").exists() }
+            )
+        }
+    }
+}

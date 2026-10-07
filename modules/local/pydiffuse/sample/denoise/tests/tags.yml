@@ -1,0 +1,2 @@
+sample/denoise:
+  - modules/local/pydiffuse/sample/denoise/**

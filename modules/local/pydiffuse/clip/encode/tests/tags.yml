@@ -1,0 +1,2 @@
+clip/encode:
+  - modules/local/pydiffuse/clip/encode/**

@@ -1,47 +1,102 @@
-include { CLIP_CONDITION } from "./subworkflows/local/clip_condition"
-include { BLANK_LATENT } from "./modules/local/latent/blank"
-include { DENOISE } from "./modules/local/denoise"
+#!/usr/bin/env nextflow
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    samirelanduk/nf-diffuser
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    Github : https://github.com/samirelanduk/nf-diffuser
+----------------------------------------------------------------------------------------
+*/
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    IMPORT FUNCTIONS / MODULES / SUBWORKFLOWS / WORKFLOWS
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+include { DIFFUSER  } from './workflows/diffuser'
+include { PIPELINE_INITIALISATION } from './subworkflows/local/utils_nfcore_diffuser_pipeline'
+include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_diffuser_pipeline'
+include { getModelAttribute       } from './subworkflows/local/utils_nfcore_diffuser_pipeline'
+include { getQcModelFiles         } from './subworkflows/local/utils_nfcore_diffuser_pipeline'
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    NAMED WORKFLOWS FOR PIPELINE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+//
+// WORKFLOW: Run main analysis pipeline depending on type of input
+//
+workflow NF_DIFFUSER {
+
+    take:
+    samplesheet // channel: samplesheet read in from --input
+
+    main:
+
+    //
+    // WORKFLOW: Run pipeline
+    //
+    DIFFUSER (
+        samplesheet,
+        params.model ?: getModelAttribute('model'),
+        params.skip_qc,
+        params.skip_qc || params.skip_clipscore ? [] : getQcModelFiles('CLIPScore', params.clipscore_model),
+        params.skip_qc || !params.run_pickscore ? [] : getQcModelFiles('PickScore', params.pickscore_model),
+        params.multiqc_config,
+        params.multiqc_logo,
+        params.multiqc_methods_description,
+        params.outdir,
+    )
+    emit:
+    multiqc_report = DIFFUSER.out.multiqc_report // channel: /path/to/multiqc_report.html
+}
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    RUN MAIN WORKFLOW
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
 
 workflow {
 
-    if (!file("${projectDir}/.venv/bin/activate").exists()) {
-        def proc = ["bash", "-c", "python3 -m venv ${projectDir}/.venv && ${projectDir}/.venv/bin/pip install -q -r ${projectDir}/requirements.txt"].execute()
-        proc.waitFor()
-        if (proc.exitValue() != 0) {
-            error "Failed to set up Python environment:\n${proc.err.text}"
-        }
-    }
+    main:
+    //
+    // SUBWORKFLOW: Run initialisation tasks
+    //
+    PIPELINE_INITIALISATION (
+        params.version,
+        params.validate_params,
+        params.monochrome_logs,
+        args,
+        params.outdir,
+        params.input,
+        params.prompt,
+        params.help,
+        params.help_full,
+        params.show_hidden
+    )
 
-    if (params.prompt && params.prompt_file) {
-        error "Please provide either --prompt or --prompt_file, not both."
-    }
-    if (!params.prompt && !params.prompt_file) {
-        error "Please provide either --prompt or --prompt_file."
-    }
-    if (!params.model) {
-        error "Please provide a model checkpoint with --model."
-    }
-
-    def width = params.width ?: (params.height ?: 512)
-    def height = params.height ?: width
-
-    def prompt_text = params.prompt_file
-        ? file(params.prompt_file, checkIfExists: true).text.trim()
-        : params.prompt.trim()
-
-    def id = prompt_text.tokenize().take(3).join('_')
-    def meta = [id: id]
-
-    prompt_ch = Channel.of(tuple(meta, prompt_text))
-    clip_tokenizer_ch = channel.fromPath("${projectDir}/assets/clip_tokenizer", checkIfExists: true)
-    model_ch = channel.fromPath(params.model, checkIfExists: true)
-
-    BLANK_LATENT(Channel.of(tuple(meta, width, height)))
-    CLIP_CONDITION(prompt_ch, clip_tokenizer_ch, model_ch)
-
-    denoise_input_ch = BLANK_LATENT.out.latent
-        .join(CLIP_CONDITION.out.conditioning)
-
-    DENOISE(denoise_input_ch, model_ch, params.steps)
-
+    //
+    // WORKFLOW: Run main workflow
+    //
+    NF_DIFFUSER (
+        PIPELINE_INITIALISATION.out.samplesheet
+    )
+    //
+    // SUBWORKFLOW: Run completion tasks
+    //
+    PIPELINE_COMPLETION (
+        params.email,
+        params.email_on_fail,
+        params.plaintext_email,
+        params.outdir,
+        params.monochrome_logs,
+        NF_DIFFUSER.out.multiqc_report
+    )
 }
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    THE END
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/

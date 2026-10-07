@@ -1,0 +1,130 @@
+# samirelanduk/nf-diffuser: Output
+
+## Introduction
+
+This document describes the output produced by the pipeline. The main output is one JPEG image per sample, in `vae/`. The intermediate latents, noise schedules and prompt conditioning used to produce each image are also saved, so individual steps can be inspected or reused.
+
+The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
+
+```tree
+results/
+├── clip/
+│   ├── negative_prompt/
+│   └── prompt/
+├── denoise/
+├── imageqc/
+├── multiqc/
+├── noise/
+├── pipeline_info/
+└── vae/
+```
+
+## Pipeline overview
+
+The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes data using the following steps:
+
+- [Noise](#noise) - Random starting latent and noise schedule
+- [Prompt encoding](#prompt-encoding) - CLIP conditioning for the prompt and negative prompt
+- [Denoising](#denoising) - Denoised latent produced by the UNet
+- [Image decoding](#image-decoding) - Final image decoded by the VAE
+- [Image QC](#image-qc) - Quality and prompt adherence metrics for each image
+- [MultiQC](#multiqc) - Aggregate report describing results and QC from the whole pipeline
+- [Pipeline information](#pipeline-information) - Report metrics generated during the workflow execution
+
+### Noise
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `noise/`
+  - `<sample>_latent.pt`: randomly generated starting latent, sized to the requested image dimensions.
+  - `<sample>_schedule.txt`: noise levels to step through during denoising, one per step.
+
+</details>
+
+[pydiffuse](https://github.com/samirelanduk/pydiffuse) creates a latent of pure random noise at one eighth of the requested image width and height, and a noise schedule using the `schedule` algorithm and number of `steps` from the samplesheet. The starting noise is random, so repeated runs of the same samplesheet produce different images.
+
+### Prompt encoding
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `clip/prompt/` and `clip/negative_prompt/`
+  - `<sample>_tokens.json`: prompt split into CLIP token IDs.
+  - `<sample>_mappings.json`: mapping between tokens and the text of the prompt.
+  - `<sample>_embedding.pt`: token embeddings.
+  - `<sample>_conditioning.pt`: final CLIP text encoder output, used to guide denoising.
+
+</details>
+
+The prompt and negative prompt are each tokenized, embedded and encoded with the CLIP text encoder from the model. When no negative prompt is given, an empty prompt is encoded in its place.
+
+### Denoising
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `denoise/`
+  - `<sample>_denoised.pt`: latent after all denoising steps.
+
+</details>
+
+The UNet from the model removes noise from the starting latent step by step, following the noise schedule. At each step it is steered towards the prompt conditioning and away from the negative prompt conditioning, with the strength set by `cfg`, using the chosen `sampler`.
+
+### Image decoding
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `vae/`
+  - `<sample>_image.jpg`: the generated image.
+
+</details>
+
+The VAE from the model decodes the denoised latent into a full-resolution image. This is the main output of the pipeline.
+
+### Image QC
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `imageqc/`
+  - `<sample>_imageqc_stats.tsv`: brightness, contrast, clipping, sharpness, noise, colourfulness and entropy.
+  - `<sample>_clipscore.tsv`: CLIPScore for the prompt and, if there is one, the negative prompt.
+  - `<sample>_pickscore.tsv`: PickScore for the prompt and negative prompt, if `--run_pickscore` is used.
+  - `imageqc_gallery.html`: thumbnails of every image with its prompt and settings.
+
+</details>
+
+Each image is scored with basic image statistics and CLIPScore, and optionally PickScore. The results are shown in the Image QC section of the MultiQC report, and every metric is added to the General Statistics table, where values suggesting a broken image are highlighted. The combined values for all images are in `multiqc/multiqc_data/multiqc_general_stats.txt`. See the [usage documentation](usage.md#image-qc) for a description of each metric.
+
+### MultiQC
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `multiqc/`
+  - `multiqc_report.html`: a standalone HTML file that can be viewed in your web browser.
+  - `multiqc_data/`: directory containing parsed statistics from the different tools used in the pipeline.
+  - `multiqc_plots/`: directory containing static images from the report in various formats.
+
+</details>
+
+[MultiQC](http://multiqc.info) is a visualization tool that generates a single HTML report summarising all samples in your project. The [image QC](#image-qc) results are visualised in the report and further statistics are available in the report data directory.
+
+The report lists the software versions used for each step of the pipeline, for future traceability. For more information about how to use MultiQC reports, see <http://multiqc.info>.
+
+### Pipeline information
+
+<details markdown="1">
+<summary>Output files</summary>
+
+- `pipeline_info/`
+  - Reports generated by Nextflow: `execution_report_<timestamp>.html`, `execution_timeline_<timestamp>.html`, `execution_trace_<timestamp>.txt` and `pipeline_dag_<timestamp>.html`.
+  - Reports generated by the pipeline: `pipeline_report.html` and `pipeline_report.txt`, only present if the `--email` / `--email_on_fail` parameters are used when running the pipeline.
+  - Software versions used in the run: `nf-diffuser_software_mqc_versions.yml`.
+  - Parameters used by the pipeline run: `params_<timestamp>.json`.
+
+</details>
+
+[Nextflow](https://www.nextflow.io/docs/latest/tracing.html) provides excellent functionality for generating various reports relevant to the running and execution of the pipeline. This will allow you to troubleshoot errors with the running of the pipeline, and also provide you with other information such as launch commands, run times and resource usage.

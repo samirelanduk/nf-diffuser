@@ -1,1 +1,46 @@
 repository_type: pipeline
+
+nf_core_version: 4.0.2
+
+lint:
+  files_unchanged:
+    - CODE_OF_CONDUCT.md
+    - assets/nf-core-nf-diffuser_logo_light.png
+    - docs/images/nf-core-nf-diffuser_logo_light.png
+    - docs/images/nf-core-nf-diffuser_logo_dark.png
+    - .github/ISSUE_TEMPLATE/bug_report.yml
+    - .github/PULL_REQUEST_TEMPLATE.md
+    - assets/email_template.txt
+    - docs/README.md
+  nextflow_config:
+    - manifest.name
+    - manifest.homePage
+  multiqc_config:
+    - report_comment
+  nf_test_content:
+    - tests/validation.nf.test
+  container_configs: false
+  included_configs: false
+  files_exist:
+    - CODE_OF_CONDUCT.md
+    - assets/nf-core-nf-diffuser_logo_light.png
+    - docs/images/nf-core-nf-diffuser_logo_light.png
+    - docs/images/nf-core-nf-diffuser_logo_dark.png
+    - .github/ISSUE_TEMPLATE/config.yml
+    - .github/workflows/awstest.yml
+    - .github/workflows/awsfulltest.yml
+    - conf/igenomes.config
+    - conf/igenomes_ignored.config
+
+template:
+  org: samirelanduk
+  name: nf-diffuser
+  description: Generates media using diffusion techniques.
+  author: Sam M. Ireland
+  version: 1.0.0
+  force: true
+  outdir: ./nf-diffuser
+  skip_features:
+    - igenomes
+    - fastqc
+  is_nfcore: false

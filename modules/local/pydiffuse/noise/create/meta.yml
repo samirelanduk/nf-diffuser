@@ -1,0 +1,103 @@
+name: noise_create
+description: Creates a latent of pure noise for an image of a given width and height.
+keywords:
+  - pydiffuse
+  - noise
+  - latent
+  - diffusion
+tools:
+  - pydiffuse:
+      description: |
+        Python library and command-line tool for generating media with
+        diffusion.
+      homepage: https://github.com/samirelanduk/pydiffuse
+      documentation: https://github.com/samirelanduk/pydiffuse/blob/master/README.md
+      licence: ["MIT"]
+      args_id: ""
+  - python:
+      description: Python runtime used to execute the pydiffuse CLI.
+      homepage: https://www.python.org/
+      documentation: https://docs.python.org/
+      licence: ["Python-2.0"]
+      identifier: biotools:python
+      args_id: ""
+input:
+  - - meta:
+        type: map
+        description: |
+          Groovy Map containing sample information
+          e.g. [ id:'test' ].
+    - width:
+        type: integer
+        description: Width in pixels of the image the latent is for.
+    - height:
+        type: integer
+        description: Height in pixels of the image the latent is for.
+  - model:
+      type: file
+      description: |
+        Safetensors file with VAE tensors, which determine the latent's
+        channels and downscale ratio.
+      pattern: "*.safetensors"
+output:
+  latent:
+    - - meta:
+          type: map
+          description: |
+            Groovy Map containing sample information
+            e.g. [ id:'test' ].
+      - "${meta.id}_latent.pt":
+          type: file
+          description: |
+            PyTorch tensor of unit random noise, of shape (channels, height /
+            ratio, width / ratio). Sizes that aren't a multiple of the ratio are
+            rounded down.
+          pattern: "*_latent.pt"
+
+  versions_python:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - python:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: Reported version string for the tool.
+
+  versions_pydiffuse:
+    - - "${task.process}":
+          type: string
+          description: Name of the Nextflow process that emitted the version.
+      - pydiffuse:
+          type: string
+          description: Tool name associated with the emitted version value.
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: Reported version string for the tool.
+
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - python:
+          type: string
+          description: The tool name
+      - 'python3 --version | cut -d" " -f2':
+          type: eval
+          description: The expression to obtain the version of the tool
+    - - ${task.process}:
+          type: string
+          description: The process the versions were collected from
+      - pydiffuse:
+          type: string
+          description: The tool name
+      - 'python3 -c "import pydiffuse; print(pydiffuse.__version__)"':
+          type: eval
+          description: The expression to obtain the version of the tool
+
+authors:
+  - "@samirelanduk"
+maintainers:
+  - "@samirelanduk"
