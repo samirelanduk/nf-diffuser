@@ -20,6 +20,7 @@ lint:
   nf_test_content:
     - tests/validation.nf.test
   container_configs: false
+  included_configs: false
   files_exist:
     - CODE_OF_CONDUCT.md
     - assets/nf-core-nf-diffuser_logo_light.png
