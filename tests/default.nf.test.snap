@@ -45,7 +45,7 @@
                     "python": "3.13.15"
                 },
                 "Workflow": {
-                    "samirelanduk/nf-diffuser": "v1.0.0dev"
+                    "samirelanduk/nf-diffuser": "v1.0.0"
                 }
             },
             [
