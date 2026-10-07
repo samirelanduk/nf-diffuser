@@ -19,7 +19,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("Provide exactly one of '--input samplesheet.csv' or '--prompt \"Some description\"'.") } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Provide exactly one of '--input samplesheet.csv' or '--prompt \"Some description\"'.") } }
             )
         }
     }
@@ -38,7 +38,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("Provide exactly one of '--input samplesheet.csv' or '--prompt \"Some description\"'.") } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Provide exactly one of '--input samplesheet.csv' or '--prompt \"Some description\"'.") } }
             )
         }
     }
@@ -57,7 +57,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("Model weights not specified with e.g. '--model_name SD1.5' or '--model model.safetensors'.") } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Model weights not specified with e.g. '--model_name SD1.5' or '--model model.safetensors'.") } }
             )
         }
     }
@@ -75,8 +75,8 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("Model 'SD9.9' not found in any config files provided to the pipeline.") } },
-                { assert workflow.stdout.any { it.contains('SD1.5') } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Model 'SD9.9' not found in any config files provided to the pipeline.") } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('SD1.5') } }
             )
         }
     }
@@ -96,7 +96,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("Model weights not specified") } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("Model weights not specified") } }
             )
         }
     }
@@ -114,7 +114,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains('does not match regular expression [^\\S+\\.safetensors$]') } }
             )
         }
@@ -133,7 +133,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("does_not_exist.safetensors' does not exist") } }
             )
         }
@@ -152,7 +152,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains('does not match regular expression [^\\S+\\.csv$]') } }
             )
         }
@@ -171,7 +171,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("does_not_exist.csv' does not exist") } }
             )
         }
@@ -199,7 +199,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains('Missing required field(s): sample') } }
             )
         }
@@ -255,7 +255,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains('Detected duplicate entries') && it.contains('TREE') } }
             )
         }
@@ -283,7 +283,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains('Missing required field(s): prompt') } }
             )
         }
@@ -311,7 +311,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'width'") && it.contains('Width must be an integer') } }
             )
         }
@@ -339,7 +339,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'height'") && it.contains('Height must be an integer') } }
             )
         }
@@ -367,7 +367,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'width'") && it.contains('Width must be an integer') } }
             )
         }
@@ -395,7 +395,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'height'") && it.contains('Height must be an integer') } }
             )
         }
@@ -423,7 +423,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer') } }
             )
         }
@@ -451,7 +451,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer') } }
             )
         }
@@ -479,7 +479,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'steps'") && it.contains('Steps must be an integer greater than or equal to 1') } }
             )
         }
@@ -507,7 +507,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'cfg'") && it.contains('CFG must be a number greater than or equal to 1') } }
             )
         }
@@ -535,7 +535,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'cfg'") && it.contains('CFG must be a number greater than or equal to 1') } }
             )
         }
@@ -563,7 +563,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'sampler'") && it.contains('Sampler must be a string and must be one of the following: euler, heun') } }
             )
         }
@@ -591,7 +591,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("Error for field 'schedule'") && it.contains('Schedule must be a string and must be one of the following: karras, exponential') } }
             )
         }
@@ -611,7 +611,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("CLIPScore model not found. Provide it with '--clipscore_model <directory>', or skip it with '--skip_clipscore'.") } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("CLIPScore model not found. Provide it with '--clipscore_model <directory>', or skip it with '--skip_clipscore'.") } }
             )
         }
     }
@@ -632,7 +632,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains("PickScore model not found. Provide it with '--pickscore_model <directory>'.") } }
+                { assert (workflow.stdout + workflow.stderr).any { it.contains("PickScore model not found. Provide it with '--pickscore_model <directory>'.") } }
             )
         }
     }
@@ -651,7 +651,7 @@ nextflow_pipeline {
         then {
             assertAll(
                 { assert workflow.failed },
-                { assert workflow.stdout.any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
+                { assert (workflow.stdout + workflow.stderr).any { it.contains('ERROR ~ Validation of pipeline parameters failed!') } },
                 { assert workflow.stderr.any { it.contains("--clipscore_model") } }
             )
         }
