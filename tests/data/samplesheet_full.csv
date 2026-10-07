@@ -1,0 +1,5 @@
+sample,prompt,negative_prompt,width,height,steps,cfg,sampler,schedule
+LIGHTHOUSE,"A lighthouse on a rocky coast at sunset, dramatic clouds, photograph","blurry, low quality, text",768,512,30,7.5,euler,karras
+FOX,"A red fox sitting in a snowy forest, wildlife photography","cartoon, illustration",512,512,25,6,heun,exponential
+CITY,"A futuristic city skyline at night, neon lights, digital art",,512,768,30,8,euler,exponential
+BOWL,"A bowl of fresh fruit on a wooden table, still life painting",,,,,,,
