@@ -5,3 +5,5 @@ dependencies:
   - conda-forge::python=3.13.15
   - pip:
       - pydiffuse==0.4.1
+      - numpy==2.5.2
+      - pillow==12.3.0
